@@ -8,6 +8,7 @@ set(IQTOOLS_QT_COMPONENTS
     QuickControls2
     Network
     Sql
+    Test
 )
 
 find_package(Qt6 6.6 COMPONENTS ${IQTOOLS_QT_COMPONENTS} QUIET)

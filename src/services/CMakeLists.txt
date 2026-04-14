@@ -1,3 +1,9 @@
+# services 层聚合业务模块，避免可执行程序直接链接每个业务目标。
+add_subdirectory(screenshot)
+add_subdirectory(translate)
+add_subdirectory(clipboard)
+add_subdirectory(hotkey)
+
 add_library(iqtools_services INTERFACE)
 
 target_include_directories(iqtools_services
@@ -5,19 +11,10 @@ target_include_directories(iqtools_services
         "${PROJECT_SOURCE_DIR}/src"
 )
 
-if(IQTOOLS_QT_AVAILABLE)
-    target_link_libraries(iqtools_services
-        INTERFACE
-            Qt6::Core
-            Qt6::Gui
-            Qt6::Network
-            Qt6::Sql
-    )
-endif()
-
-if(OpenCV_FOUND)
-    target_link_libraries(iqtools_services
-        INTERFACE
-            ${OpenCV_LIBS}
-    )
-endif()
+target_link_libraries(iqtools_services
+    INTERFACE
+        iqtools_service_screenshot
+        iqtools_service_translate
+        iqtools_service_clipboard
+        iqtools_service_hotkey
+)

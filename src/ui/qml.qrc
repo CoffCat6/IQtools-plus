@@ -1,5 +1,17 @@
+<!-- src/ui/qml.qrc -->
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+
+        <file>theme/Theme.qml</file>
+
+        <file>components/SoftCard.qml</file>
+        <file>components/NavigationItem.qml</file>
+        <file>components/AppSidebar.qml</file>
+        <file>components/AppTopBar.qml</file>
+
+        <file>pages/TranslatePage.qml</file>
+        <file>pages/ClipboardPage.qml</file>
+        <file>pages/ScreenshotPage.qml</file>
     </qresource>
 </RCC>

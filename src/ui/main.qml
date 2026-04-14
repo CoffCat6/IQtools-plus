@@ -1,57 +1,99 @@
+// src/ui/main.qml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "components"
+import "pages"
+import "theme"
 
 ApplicationWindow {
     id: root
 
-    width: 1280
-    height: 800
+    required property QtObject viewModel
+
+    width: 1440
+    height: 920
+    minimumWidth: 1160
+    minimumHeight: 760
     visible: true
-    title: qsTr("IQtoolsPlus")
-    color: "#f5f7fb"
+    title: qsTr("IQtools Plus")
 
-    header: ToolBar {
-        contentHeight: 52
+    Theme {
+        id: theme
+        isDark: root.viewModel.darkMode
+    }
 
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
+    color: theme.backgroundColor
+    font.family: theme.fontFamily
 
-            Label {
-                text: qsTr("IQtoolsPlus")
-                font.pixelSize: 20
-                font.bold: true
-            }
+    background: Rectangle {
+        color: theme.backgroundColor
 
-            Item {
-                Layout.fillWidth: true
-            }
-
-            Label {
-                text: qsTr("Project skeleton initialized")
-                color: "#52606d"
-            }
+        Behavior on color {
+            ColorAnimation { duration: theme.durationBase }
         }
     }
 
-    ColumnLayout {
-        anchors.centerIn: parent
-        spacing: 16
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: theme.spacingLG
+        spacing: theme.spacingLG
 
-        Label {
-            Layout.alignment: Qt.AlignHCenter
-            text: qsTr("Directory structure and CMake skeleton are ready")
-            font.pixelSize: 28
-            font.bold: true
+        AppSidebar {
+            Layout.preferredWidth: 260
+            Layout.fillHeight: true
+            theme: theme
+            currentIndex: root.viewModel.currentPageIndex
+
+            onPageSelected: function(pageIndex) {
+                root.viewModel.navigateTo(pageIndex)
+            }
         }
 
-        Label {
-            Layout.alignment: Qt.AlignHCenter
-            horizontalAlignment: Text.AlignHCenter
-            text: qsTr("Next step: implement screenshot, clipboard, translation, and plugin modules.")
-            color: "#52606d"
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: theme.spacingLG
+
+                AppTopBar {
+                    Layout.fillWidth: true
+                    theme: theme
+                    title: root.viewModel.pageTitle
+                    subtitle: root.viewModel.pageSubtitle
+
+                    onThemeToggleRequested: {
+                        root.viewModel.toggleDarkMode()
+                    }
+                }
+
+                SoftCard {
+                    theme: theme
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    padding: theme.spacingXL
+
+                    StackLayout {
+                        anchors.fill: parent
+                        currentIndex: root.viewModel.currentPageIndex
+
+                        TranslatePage {
+                            theme: theme
+                            viewModel: root.viewModel.translateViewModel
+                        }
+
+                        ClipboardPage {
+                            theme: theme
+                        }
+
+                        ScreenshotPage {
+                            theme: theme
+                        }
+                    }
+                }
+            }
         }
     }
 }
