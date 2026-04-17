@@ -25,26 +25,34 @@ Item {
                     qsTr("延时截图")
                 ]
 
-                delegate: SoftCard {
-                    theme: root.theme
-                    hoverable: true
+                delegate: Item {
+                    id: actionCard
+
+                    required property string modelData
+
                     Layout.fillWidth: true
                     Layout.preferredHeight: 140
 
-                    Text {
-                        text: modelData
-                        color: root.theme.textPrimary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeLG
-                        font.weight: root.theme.fontWeightSemibold
-                    }
+                    SoftCard {
+                        anchors.fill: parent
+                        theme: root.theme
+                        hoverable: true
 
-                    Text {
-                        text: qsTr("后续绑定 ScreenshotViewModel.startCapture(...)")
-                        color: root.theme.textSecondary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeSM
-                        wrapMode: Text.WordWrap
+                        Text {
+                            text: actionCard.modelData
+                            color: root.theme.textPrimary
+                            font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.fontSizeLG
+                            font.weight: root.theme.fontWeightSemibold
+                        }
+
+                        Text {
+                            text: qsTr("后续绑定 ScreenshotViewModel.startCapture(...)")
+                            color: root.theme.textSecondary
+                            font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.fontSizeSM
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
             }

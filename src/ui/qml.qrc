@@ -13,5 +13,6 @@
         <file>pages/TranslatePage.qml</file>
         <file>pages/ClipboardPage.qml</file>
         <file>pages/ScreenshotPage.qml</file>
+        <file>pages/HomePage.qml</file>
     </qresource>
 </RCC>

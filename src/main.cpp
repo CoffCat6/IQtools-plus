@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     AppShellViewModel appShellViewModel;
 
     engine.setInitialProperties({
-        {QStringLiteral("viewModel"), QVariant::fromValue(&appShellViewModel)}
+        {QStringLiteral("viewModel"), QVariant::fromValue(static_cast<QObject*>(&appShellViewModel))}
     });
 
     const QUrl mainQmlUrl(QStringLiteral("qrc:/main.qml"));

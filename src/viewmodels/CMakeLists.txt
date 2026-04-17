@@ -3,6 +3,7 @@
 add_library(iqtools_viewmodels STATIC
     AppShellViewModel.cpp
     TranslateViewModel.cpp
+    HomeViewModel.cpp
 )
 
 target_sources(iqtools_viewmodels
@@ -12,6 +13,7 @@ target_sources(iqtools_viewmodels
         FILES
             ${PROJECT_SOURCE_DIR}/src/viewmodels/AppShellViewModel.h
             ${PROJECT_SOURCE_DIR}/src/viewmodels/TranslateViewModel.h
+            ${PROJECT_SOURCE_DIR}/src/viewmodels/HomeViewModel.h
 )
 
 target_include_directories(iqtools_viewmodels

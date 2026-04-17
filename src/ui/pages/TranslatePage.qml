@@ -211,7 +211,8 @@ Item {
             Layout.preferredHeight: 104
 
             ColumnLayout {
-                anchors.fill: parent
+                Layout.fillWidth: true
+                Layout.fillHeight: true
                 spacing: root.theme.spacingXS
 
                 Text {

@@ -76,8 +76,14 @@ ApplicationWindow {
                     padding: theme.spacingXL
 
                     StackLayout {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                         currentIndex: root.viewModel.currentPageIndex
+
+                        HomePage {
+                            theme: theme
+                            viewModel: root.viewModel.homeViewModel
+                        }
 
                         TranslatePage {
                             theme: theme
@@ -86,6 +92,7 @@ ApplicationWindow {
 
                         ClipboardPage {
                             theme: theme
+                            // viewModel: root.viewModel.clipboardViewModel
                         }
 
                         ScreenshotPage {

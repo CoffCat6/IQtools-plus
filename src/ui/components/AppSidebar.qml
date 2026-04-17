@@ -17,6 +17,10 @@ Item {
 
     readonly property var navItems: [
         {
+            title: qsTr("首页"),
+            badge: qsTr("首")
+        },
+        {
             title: qsTr("翻译"),
             badge: qsTr("译")
         },
@@ -69,16 +73,29 @@ Item {
             spacing: root.theme.spacingSM
 
             Repeater {
-                model: root.navItems
+                model: root.navItems.length
 
-                delegate: NavigationItem {
-                    theme: root.theme
-                    title: modelData.title
-                    badgeText: modelData.badge
-                    pageIndex: index
-                    currentIndex: root.currentIndex
-                    onTriggered: function (pageIndex) {
-                        root.pageSelected(pageIndex);
+                delegate: Item {
+                    id: navDelegate
+
+                    required property int index
+                    readonly property var navItemData: root.navItems[index]
+
+                    Layout.fillWidth: true
+                    implicitHeight: navigationItem.implicitHeight
+
+                    NavigationItem {
+                        id: navigationItem
+                        anchors.fill: parent
+                        theme: root.theme
+                        title: navDelegate.navItemData.title
+                        badgeText: navDelegate.navItemData.badge
+                        pageIndex: navDelegate.index
+                        currentIndex: root.currentIndex
+
+                        onTriggered: function(pageIndex) {
+                            root.pageSelected(pageIndex)
+                        }
                     }
                 }
             }

@@ -5,6 +5,7 @@
 #include <QString>
 #include <QtQml/qqmlregistration.h>
 
+class HomeViewModel;
 class TranslateViewModel;
 
 /**
@@ -40,6 +41,11 @@ class AppShellViewModel final : public QObject
                NOTIFY currentPageIndexChanged
                FINAL)
 
+    Q_PROPERTY(QObject* homeViewModel
+               READ homeViewModel
+               CONSTANT
+               FINAL)
+
     Q_PROPERTY(QObject* translateViewModel
                READ translateViewModel
                CONSTANT
@@ -53,6 +59,7 @@ public:
     [[nodiscard]] bool darkMode() const noexcept;
     [[nodiscard]] QString pageTitle() const;
     [[nodiscard]] QString pageSubtitle() const;
+    [[nodiscard]] QObject* homeViewModel() const noexcept;
     [[nodiscard]] QObject* translateViewModel() const noexcept;
 
     void setCurrentPageIndex(int pageIndex);
@@ -69,5 +76,6 @@ signals:
 private:
     int m_currentPageIndex{0};
     bool m_darkMode{false};
+    HomeViewModel* m_homeViewModel{nullptr};
     TranslateViewModel* m_translateViewModel{nullptr};
 };
