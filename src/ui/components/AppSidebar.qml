@@ -9,11 +9,13 @@ Item {
 
     required property QtObject theme
     required property int currentIndex
+    required property bool collapsed
 
     signal pageSelected(int pageIndex)
+    signal toggleCollapseRequested()
 
     objectName: "appSidebar"
-    implicitWidth: 260
+    implicitWidth: root.collapsed ? 88 : 260
 
     readonly property var navItems: [
         {
@@ -34,10 +36,23 @@ Item {
         }
     ]
 
+    Behavior on implicitWidth {
+        NumberAnimation {
+            duration: root.theme.durationBase
+            easing.type: Easing.OutCubic
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         radius: root.theme.radiusXL
         color: root.theme.sidebarColor
+
+        Behavior on color {
+            ColorAnimation {
+                duration: root.theme.durationBase
+            }
+        }
     }
 
     ColumnLayout {
@@ -49,22 +64,50 @@ Item {
             theme: root.theme
             highlighted: true
             Layout.fillWidth: true
-            implicitHeight: 120
+            implicitHeight: root.collapsed ? 88 : 120
 
-            Text {
-                text: qsTr("IQtools Plus")
-                color: root.theme.textPrimary
-                font.family: root.theme.fontFamily
-                font.pixelSize: root.theme.fontSize2XL
-                font.weight: root.theme.fontWeightBold
+            Behavior on implicitHeight {
+                NumberAnimation {
+                    duration: root.theme.durationBase
+                    easing.type: Easing.OutCubic
+                }
             }
 
-            Text {
-                text: qsTr("桌面效率工具箱")
-                color: root.theme.textSecondary
-                font.family: root.theme.fontFamily
-                font.pixelSize: root.theme.fontSizeBase
-                wrapMode: Text.WordWrap
+            Item {
+                anchors.fill: parent
+
+                Column {
+                    anchors.fill: parent
+                    spacing: root.theme.spacingSM
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: root.collapsed ? qsTr("IQ") : qsTr("IQtools Plus")
+                        color: root.theme.textPrimary
+                        font.family: root.theme.fontFamily
+                        font.pixelSize: root.collapsed
+                                        ? root.theme.fontSizeXL
+                                        : root.theme.fontSize2XL
+                        font.weight: root.theme.fontWeightBold
+                    }
+
+                    Text {
+                        visible: !root.collapsed
+                        opacity: root.collapsed ? 0.0 : 1.0
+                        text: qsTr("桌面效率工具箱")
+                        color: root.theme.textSecondary
+                        font.family: root.theme.fontFamily
+                        font.pixelSize: root.theme.fontSizeBase
+                        wrapMode: Text.WordWrap
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: root.theme.durationBase
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -88,7 +131,7 @@ Item {
                         id: navigationItem
                         anchors.fill: parent
                         theme: root.theme
-                        title: navDelegate.navItemData.title
+                        title: root.collapsed ? "" : navDelegate.navItemData.title
                         badgeText: navDelegate.navItemData.badge
                         pageIndex: navDelegate.index
                         currentIndex: root.currentIndex
@@ -108,22 +151,90 @@ Item {
         SoftCard {
             theme: root.theme
             Layout.fillWidth: true
-            implicitHeight: 112
+            implicitHeight: root.collapsed ? 92 : 156
 
-            Text {
-                text: qsTr("当前阶段")
-                color: root.theme.textSecondary
-                font.family: root.theme.fontFamily
-                font.pixelSize: root.theme.fontSizeSM
-                font.weight: root.theme.fontWeightSemibold
+            Behavior on implicitHeight {
+                NumberAnimation {
+                    duration: root.theme.durationBase
+                    easing.type: Easing.OutCubic
+                }
             }
 
-            Text {
-                text: qsTr("主界面壳层已拆分，下一步可逐页接入 ViewModel。")
-                color: root.theme.textPrimary
-                font.family: root.theme.fontFamily
-                font.pixelSize: root.theme.fontSizeBase
-                wrapMode: Text.WordWrap
+            Item {
+                anchors.fill: parent
+
+                Column {
+                    anchors.fill: parent
+                    spacing: root.theme.spacingSM
+
+                    Text {
+                        visible: !root.collapsed
+                        opacity: root.collapsed ? 0.0 : 1.0
+                        text: qsTr("当前阶段")
+                        color: root.theme.textSecondary
+                        font.family: root.theme.fontFamily
+                        font.pixelSize: root.theme.fontSizeSM
+                        font.weight: root.theme.fontWeightSemibold
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: root.theme.durationBase
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+                    }
+
+                    Text {
+                        visible: !root.collapsed
+                        opacity: root.collapsed ? 0.0 : 1.0
+                        text: qsTr("主界面壳层已拆分，下一步可逐页接入 ViewModel。")
+                        color: root.theme.textPrimary
+                        font.family: root.theme.fontFamily
+                        font.pixelSize: root.theme.fontSizeBase
+                        wrapMode: Text.WordWrap
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: root.theme.durationBase
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+                    }
+
+                    Button {
+                        id: collapseButton
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: root.collapsed ? 40 : parent.width
+                        height: 40
+                        text: root.collapsed ? ">" : qsTr("收起导航")
+
+                        onClicked: root.toggleCollapseRequested()
+
+                        contentItem: Text {
+                            text: collapseButton.text
+                            color: root.theme.textPrimary
+                            font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.fontSizeBase
+                            font.weight: root.theme.fontWeightSemibold
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        background: Rectangle {
+                            radius: 20
+                            color: collapseButton.down
+                                   ? root.theme.primaryLightColor
+                                   : root.theme.surfaceColor
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: root.theme.durationBase
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

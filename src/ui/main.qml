@@ -11,6 +11,9 @@ ApplicationWindow {
 
     required property QtObject viewModel
 
+    // Sidebar UI state
+    property bool sidebarCollapsed: false
+
     width: 1440
     height: 920
     minimumWidth: 1160
@@ -30,7 +33,9 @@ ApplicationWindow {
         color: theme.backgroundColor
 
         Behavior on color {
-            ColorAnimation { duration: theme.durationBase }
+            ColorAnimation {
+                duration: theme.durationBase
+            }
         }
     }
 
@@ -40,13 +45,26 @@ ApplicationWindow {
         spacing: theme.spacingLG
 
         AppSidebar {
-            Layout.preferredWidth: 260
+            Layout.preferredWidth: root.sidebarCollapsed ? 88 : 260
             Layout.fillHeight: true
+
             theme: theme
             currentIndex: root.viewModel.currentPageIndex
+            collapsed: root.sidebarCollapsed
 
             onPageSelected: function(pageIndex) {
                 root.viewModel.navigateTo(pageIndex)
+            }
+
+            onToggleCollapseRequested: {
+                root.sidebarCollapsed = !root.sidebarCollapsed
+            }
+
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: theme.durationBase
+                    easing.type: Easing.OutCubic
+                }
             }
         }
 
@@ -76,8 +94,7 @@ ApplicationWindow {
                     padding: theme.spacingXL
 
                     StackLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
+                        anchors.fill: parent
                         currentIndex: root.viewModel.currentPageIndex
 
                         HomePage {
