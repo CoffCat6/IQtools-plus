@@ -10,8 +10,6 @@ Item {
     required property string title
     required property string subtitle
 
-    signal themeToggleRequested()
-
     implicitHeight: 92
     objectName: "appTopBar"
 
@@ -37,28 +35,6 @@ Item {
                 font.family: root.theme.fontFamily
                 font.pixelSize: root.theme.fontSizeBase
                 elide: Text.ElideRight
-            }
-        }
-
-        Button {
-            id: themeButton
-            text: root.theme.isDark ? qsTr("浅色") : qsTr("深色")
-            focusPolicy: Qt.TabFocus
-            onClicked: root.themeToggleRequested()
-
-            background: Rectangle {
-                radius: root.theme.radiusLG
-                color: themeButton.hovered ? root.theme.primaryHoverColor : root.theme.primaryColor
-            }
-
-            contentItem: Text {
-                text: themeButton.text
-                color: "#FFFFFF"
-                font.family: root.theme.fontFamily
-                font.pixelSize: root.theme.fontSizeBase
-                font.weight: root.theme.fontWeightSemibold
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
             }
         }
     }
