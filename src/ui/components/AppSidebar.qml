@@ -13,6 +13,7 @@ Item {
 
     signal pageSelected(int pageIndex)
     signal toggleCollapseRequested()
+    signal themeToggleRequested()
 
     objectName: "appSidebar"
     implicitWidth: root.collapsed ? 88 : 260
@@ -95,6 +96,70 @@ Item {
 
         Item {
             Layout.fillHeight: true
+        }
+
+        // 主题切换按钮
+        Rectangle {
+            id: themeToggleButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: 56
+            radius: root.theme.radiusLG
+            color: themeToggleMouseArea.containsMouse
+                   ? root.theme.surfaceColor : "transparent"
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: root.theme.durationShort
+                }
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: root.theme.spacingMD
+                anchors.rightMargin: root.theme.spacingMD
+                spacing: root.theme.spacingMD
+
+                Rectangle {
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+                    radius: root.theme.radiusMD
+                    color: root.theme.surfaceColor
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: root.theme.isDark ? "☾" : "☀"
+                        font.pixelSize: 16
+                    }
+                }
+
+                Text {
+                    visible: !root.collapsed
+                    opacity: root.collapsed ? 0.0 : 1.0
+                    Layout.fillWidth: true
+                    text: root.theme.isDark ? qsTr("浅色模式") : qsTr("深色模式")
+                    color: root.theme.textPrimary
+                    font.family: root.theme.fontFamily
+                    font.pixelSize: root.theme.fontSizeBase
+                    font.weight: root.theme.fontWeightMedium
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: root.theme.durationBase
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
+            }
+
+            MouseArea {
+                id: themeToggleMouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.themeToggleRequested()
+            }
         }
 
         ColumnLayout {

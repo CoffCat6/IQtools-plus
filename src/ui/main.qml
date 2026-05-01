@@ -60,6 +60,10 @@ ApplicationWindow {
                 root.sidebarCollapsed = !root.sidebarCollapsed
             }
 
+            onThemeToggleRequested: {
+                root.viewModel.toggleDarkMode()
+            }
+
             Behavior on Layout.preferredWidth {
                 NumberAnimation {
                     duration: theme.durationBase
@@ -81,10 +85,6 @@ ApplicationWindow {
                     theme: theme
                     title: root.viewModel.pageTitle
                     subtitle: root.viewModel.pageSubtitle
-
-                    onThemeToggleRequested: {
-                        root.viewModel.toggleDarkMode()
-                    }
                 }
 
                 SoftCard {
