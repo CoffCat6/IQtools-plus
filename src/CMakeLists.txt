@@ -28,7 +28,7 @@ target_compile_definitions(iqtoolsplus_app
 
 set_target_properties(iqtoolsplus_app PROPERTIES
     OUTPUT_NAME "IQtoolsPlus"
-    WIN32_EXECUTABLE TRUE
+    WIN32_EXECUTABLE FALSE
     MACOSX_BUNDLE TRUE
 )
 
