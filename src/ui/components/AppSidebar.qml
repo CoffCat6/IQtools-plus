@@ -60,57 +60,6 @@ Item {
         anchors.margins: root.theme.spacingLG
         spacing: root.theme.spacingLG
 
-        SoftCard {
-            theme: root.theme
-            highlighted: true
-            Layout.fillWidth: true
-            implicitHeight: root.collapsed ? 88 : 120
-
-            Behavior on implicitHeight {
-                NumberAnimation {
-                    duration: root.theme.durationBase
-                    easing.type: Easing.OutCubic
-                }
-            }
-
-            Item {
-                anchors.fill: parent
-
-                Column {
-                    anchors.fill: parent
-                    spacing: root.theme.spacingSM
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.collapsed ? qsTr("IQ") : qsTr("IQtools Plus")
-                        color: root.theme.textPrimary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.collapsed
-                                        ? root.theme.fontSizeXL
-                                        : root.theme.fontSize2XL
-                        font.weight: root.theme.fontWeightBold
-                    }
-
-                    Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
-                        text: qsTr("桌面效率工具箱")
-                        color: root.theme.textSecondary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeBase
-                        wrapMode: Text.WordWrap
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         ColumnLayout {
             Layout.fillWidth: true
             spacing: root.theme.spacingSM
@@ -148,92 +97,35 @@ Item {
             Layout.fillHeight: true
         }
 
-        SoftCard {
-            theme: root.theme
+        ColumnLayout {
             Layout.fillWidth: true
-            implicitHeight: root.collapsed ? 92 : 156
+            spacing: root.theme.spacingSM
 
-            Behavior on implicitHeight {
-                NumberAnimation {
-                    duration: root.theme.durationBase
-                    easing.type: Easing.OutCubic
+            // 设置页按钮
+            NavigationItem {
+                Layout.fillWidth: true
+                theme: root.theme
+                title: root.collapsed ? "" : qsTr("设置")
+                badgeText: qsTr("设")
+                pageIndex: 4
+                currentIndex: root.currentIndex
+
+                onTriggered: function(pageIndex) {
+                    root.pageSelected(pageIndex)
                 }
             }
 
-            Item {
-                anchors.fill: parent
+            // 折叠/展开按钮
+            NavigationItem {
+                Layout.fillWidth: true
+                theme: root.theme
+                title: root.collapsed ? "" : qsTr("收起侧栏")
+                badgeText: root.collapsed ? qsTr("展") : qsTr("收")
+                pageIndex: -1
+                currentIndex: root.currentIndex
 
-                Column {
-                    anchors.fill: parent
-                    spacing: root.theme.spacingSM
-
-                    Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
-                        text: qsTr("当前阶段")
-                        color: root.theme.textSecondary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeSM
-                        font.weight: root.theme.fontWeightSemibold
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
-                    }
-
-                    Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
-                        text: qsTr("主界面壳层已拆分，下一步可逐页接入 ViewModel。")
-                        color: root.theme.textPrimary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeBase
-                        wrapMode: Text.WordWrap
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: collapseButton
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        width: root.collapsed ? 40 : parent.width
-                        height: 40
-                        text: root.collapsed ? ">" : qsTr("收起导航")
-
-                        onClicked: root.toggleCollapseRequested()
-
-                        contentItem: Text {
-                            text: collapseButton.text
-                            color: root.theme.textPrimary
-                            font.family: root.theme.fontFamily
-                            font.pixelSize: root.theme.fontSizeBase
-                            font.weight: root.theme.fontWeightSemibold
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        background: Rectangle {
-                            radius: 20
-                            color: collapseButton.down
-                                   ? root.theme.primaryLightColor
-                                   : root.theme.surfaceColor
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: root.theme.durationBase
-                                }
-                            }
-                        }
-                    }
+                onTriggered: function() {
+                    root.toggleCollapseRequested()
                 }
             }
         }

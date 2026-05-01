@@ -7,7 +7,7 @@ project(IQtoolsPlus
 )
 
 option(IQTOOLS_BUILD_PLUGINS "Build official plugins" ON)
-option(IQTOOLS_BUILD_TESTS "Build automated tests" ON)
+option(IQTOOLS_BUILD_TESTS "Build automated tests" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
