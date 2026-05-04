@@ -34,6 +34,10 @@ Item {
         {
             title: qsTr("截图"),
             badge: qsTr("截")
+        },
+        {
+            title: qsTr("设置"),
+            badge: qsTr("设")
         }
     ]
 
