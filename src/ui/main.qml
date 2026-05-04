@@ -45,7 +45,7 @@ ApplicationWindow {
         spacing: theme.spacingLG
 
         AppSidebar {
-            Layout.preferredWidth: root.sidebarCollapsed ? 88 : 260
+            Layout.preferredWidth: root.sidebarCollapsed ? 64 : 260
             Layout.fillHeight: true
 
             theme: theme

@@ -16,7 +16,7 @@ Item {
     signal themeToggleRequested()
 
     objectName: "appSidebar"
-    implicitWidth: root.collapsed ? 88 : 260
+    implicitWidth: root.collapsed ? 64 : 260
 
     readonly property var navItems: [
         {
@@ -44,6 +44,7 @@ Item {
         }
     }
 
+    // 背景
     Rectangle {
         anchors.fill: parent
         radius: root.theme.radiusXL
@@ -58,21 +59,35 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: root.theme.spacingLG
-        spacing: root.theme.spacingLG
+        anchors.margins: root.collapsed ? root.theme.spacingSM : root.theme.spacingLG
+        spacing: root.collapsed ? root.theme.spacingSM : root.theme.spacingLG
 
+        Behavior on anchors.margins {
+            NumberAnimation {
+                duration: root.theme.durationBase
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        // ── Header ─────────────────────────────────────────────────────
+        // 折叠态：纯文字 logo
+        Text {
+            visible: root.collapsed
+            Layout.alignment: Qt.AlignHCenter
+            text: qsTr("IQ")
+            color: root.theme.textPrimary
+            font.family: root.theme.fontFamily
+            font.pixelSize: root.theme.fontSizeXL
+            font.weight: root.theme.fontWeightBold
+        }
+
+        // 展开态：SoftCard 品牌卡
         SoftCard {
+            visible: !root.collapsed
             theme: root.theme
             highlighted: true
             Layout.fillWidth: true
-            implicitHeight: root.collapsed ? 88 : 120
-
-            Behavior on implicitHeight {
-                NumberAnimation {
-                    duration: root.theme.durationBase
-                    easing.type: Easing.OutCubic
-                }
-            }
+            implicitHeight: 120
 
             Item {
                 anchors.fill: parent
@@ -82,39 +97,28 @@ Item {
                     spacing: root.theme.spacingSM
 
                     Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.collapsed ? qsTr("IQ") : qsTr("IQtools Plus")
+                        text: qsTr("IQtools Plus")
                         color: root.theme.textPrimary
                         font.family: root.theme.fontFamily
-                        font.pixelSize: root.collapsed
-                                        ? root.theme.fontSizeXL
-                                        : root.theme.fontSize2XL
+                        font.pixelSize: root.theme.fontSize2XL
                         font.weight: root.theme.fontWeightBold
                     }
 
                     Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
                         text: qsTr("桌面效率工具箱")
                         color: root.theme.textSecondary
                         font.family: root.theme.fontFamily
                         font.pixelSize: root.theme.fontSizeBase
                         wrapMode: Text.WordWrap
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
                     }
                 }
             }
         }
 
+        // ── Navigation Items ───────────────────────────────────────────
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: root.theme.spacingSM
+            spacing: root.collapsed ? 2 : root.theme.spacingSM
 
             Repeater {
                 model: root.navItems.length
@@ -132,10 +136,11 @@ Item {
                         id: navigationItem
                         anchors.fill: parent
                         theme: root.theme
-                        title: root.collapsed ? "" : navDelegate.navItemData.title
+                        title: navDelegate.navItemData.title
                         badgeText: navDelegate.navItemData.badge
                         pageIndex: navDelegate.index
                         currentIndex: root.currentIndex
+                        collapsed: root.collapsed
 
                         onTriggered: function(pageIndex) {
                             root.pageSelected(pageIndex)
@@ -145,16 +150,19 @@ Item {
             }
         }
 
+        // 弹性空间
         Item {
             Layout.fillHeight: true
         }
 
-        // 主题切换按钮
+        // ── 主题切换 ───────────────────────────────────────────────────
         Rectangle {
             id: themeToggleButton
             Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            radius: root.theme.radiusLG
+            Layout.preferredHeight: root.collapsed ? 36 : 44
+            Layout.alignment: Qt.AlignHCenter
+            width: root.collapsed ? 36 : undefined
+            radius: root.collapsed ? 18 : root.theme.radiusLG
             color: themeToggleMouseArea.containsMouse
                    ? root.theme.surfaceColor : "transparent"
 
@@ -164,7 +172,18 @@ Item {
                 }
             }
 
+            // 折叠态：纯图标居中
+            Text {
+                visible: root.collapsed
+                anchors.centerIn: parent
+                text: root.theme.isDark ? "☾" : "☀"
+                font.pixelSize: 16
+                color: root.theme.textSecondary
+            }
+
+            // 展开态：图标 + 文字
             RowLayout {
+                visible: !root.collapsed
                 anchors.fill: parent
                 anchors.leftMargin: root.theme.spacingMD
                 anchors.rightMargin: root.theme.spacingMD
@@ -184,8 +203,6 @@ Item {
                 }
 
                 Text {
-                    visible: !root.collapsed
-                    opacity: root.collapsed ? 0.0 : 1.0
                     Layout.fillWidth: true
                     text: root.theme.isDark ? qsTr("浅色模式") : qsTr("深色模式")
                     color: root.theme.textPrimary
@@ -194,13 +211,6 @@ Item {
                     font.weight: root.theme.fontWeightMedium
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
-
-                    Behavior on opacity {
-                        NumberAnimation {
-                            duration: root.theme.durationBase
-                            easing.type: Easing.OutCubic
-                        }
-                    }
                 }
             }
 
@@ -211,96 +221,48 @@ Item {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.themeToggleRequested()
             }
+
+            ToolTip.visible: root.collapsed && themeToggleMouseArea.containsMouse
+            ToolTip.text: root.theme.isDark ? qsTr("浅色模式") : qsTr("深色模式")
+            ToolTip.delay: 400
         }
 
-        SoftCard {
-            theme: root.theme
-            Layout.fillWidth: true
-            implicitHeight: root.collapsed ? 92 : 156
+        // ── 收起/展开按钮 ──────────────────────────────────────────────
+        Rectangle {
+            id: collapseButton
+            Layout.preferredWidth: 36
+            Layout.preferredHeight: 36
+            Layout.alignment: Qt.AlignHCenter
+            radius: 18
+            color: collapseMouseArea.containsMouse
+                   ? root.theme.surfaceColor : "transparent"
 
-            Behavior on implicitHeight {
-                NumberAnimation {
-                    duration: root.theme.durationBase
-                    easing.type: Easing.OutCubic
+            Behavior on color {
+                ColorAnimation {
+                    duration: root.theme.durationShort
                 }
             }
 
-            Item {
+            Text {
+                anchors.centerIn: parent
+                text: root.collapsed ? "›" : "‹"
+                color: root.theme.textSecondary
+                font.family: root.theme.fontFamily
+                font.pixelSize: 18
+                font.weight: root.theme.fontWeightSemibold
+            }
+
+            MouseArea {
+                id: collapseMouseArea
                 anchors.fill: parent
-
-                Column {
-                    anchors.fill: parent
-                    spacing: root.theme.spacingSM
-
-                    Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
-                        text: qsTr("当前阶段")
-                        color: root.theme.textSecondary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeSM
-                        font.weight: root.theme.fontWeightSemibold
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
-                    }
-
-                    Text {
-                        visible: !root.collapsed
-                        opacity: root.collapsed ? 0.0 : 1.0
-                        text: qsTr("主界面壳层已拆分，下一步可逐页接入 ViewModel。")
-                        color: root.theme.textPrimary
-                        font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeBase
-                        wrapMode: Text.WordWrap
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: root.theme.durationBase
-                                easing.type: Easing.OutCubic
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: collapseButton
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        width: root.collapsed ? 40 : parent.width
-                        height: 40
-                        text: root.collapsed ? ">" : qsTr("收起导航")
-
-                        onClicked: root.toggleCollapseRequested()
-
-                        contentItem: Text {
-                            text: collapseButton.text
-                            color: root.theme.textPrimary
-                            font.family: root.theme.fontFamily
-                            font.pixelSize: root.theme.fontSizeBase
-                            font.weight: root.theme.fontWeightSemibold
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        background: Rectangle {
-                            radius: 20
-                            color: collapseButton.down
-                                   ? root.theme.primaryLightColor
-                                   : root.theme.surfaceColor
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: root.theme.durationBase
-                                }
-                            }
-                        }
-                    }
-                }
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.toggleCollapseRequested()
             }
+
+            ToolTip.visible: root.collapsed && collapseMouseArea.containsMouse
+            ToolTip.text: qsTr("展开导航")
+            ToolTip.delay: 400
         }
     }
 }
