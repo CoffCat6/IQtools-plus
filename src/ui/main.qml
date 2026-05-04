@@ -115,6 +115,10 @@ ApplicationWindow {
                         ScreenshotPage {
                             theme: theme
                         }
+
+                        SettingPage {
+                            theme: theme
+                        }
                     }
                 }
             }
