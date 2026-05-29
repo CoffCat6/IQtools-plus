@@ -11,12 +11,18 @@ Item {
     required property int currentIndex
     required property bool collapsed
 
+    // 拖拽调整宽度
+    property real userWidth: 200
+    readonly property real minWidth: 180
+    readonly property real maxWidth: 260
+    readonly property real defaultWidth: 200
+
     signal pageSelected(int pageIndex)
     signal toggleCollapseRequested()
     signal themeToggleRequested()
 
     objectName: "appSidebar"
-    implicitWidth: root.collapsed ? 64 : 260
+    implicitWidth: root.collapsed ? 64 : root.userWidth
 
     readonly property var navItems: [
         {
@@ -34,6 +40,10 @@ Item {
         {
             title: qsTr("截图"),
             badge: qsTr("截")
+        },
+        {
+            title: qsTr("待办"),
+            badge: qsTr("办")
         },
         {
             title: qsTr("设置"),
@@ -101,7 +111,7 @@ Item {
                     spacing: root.theme.spacingSM
 
                     Text {
-                        text: qsTr("IQtools Plus")
+                        text: qsTr("IQtools")
                         color: root.theme.textPrimary
                         font.family: root.theme.fontFamily
                         font.pixelSize: root.theme.fontSize2XL
@@ -208,7 +218,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.theme.isDark ? qsTr("浅色模式") : qsTr("深色模式")
+                    text: root.theme.isDark ? qsTr("浅色") : qsTr("深色")
                     color: root.theme.textPrimary
                     font.family: root.theme.fontFamily
                     font.pixelSize: root.theme.fontSizeBase
@@ -268,5 +278,73 @@ Item {
             ToolTip.text: qsTr("展开导航")
             ToolTip.delay: 400
         }
+    }
+
+    // ── 右侧拖拽手柄 ───────────────────────────────────────────────
+    Item {
+        id: resizeHandle
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 8
+        enabled: !root.collapsed
+
+        // 拖拽时的视觉反馈线
+        Rectangle {
+            anchors.right: parent.right
+            width: 2
+            height: parent.height
+            radius: 1
+            color: resizeHandle.containsMouse || resizeHandle.drag.active
+                   ? root.theme.primaryColor : "transparent"
+            opacity: resizeHandle.containsMouse || resizeHandle.drag.active ? 0.6 : 0.0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: root.theme.durationShort
+                }
+            }
+            Behavior on color {
+                ColorAnimation {
+                    duration: root.theme.durationShort
+                }
+            }
+        }
+
+        MouseArea {
+            id: resizeHandleMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: root.collapsed ? Qt.ArrowCursor : Qt.SplitHCursor
+            drag.target: parent
+            drag.axis: Drag.XAxis
+            drag.minimumX: 0
+            drag.maximumX: root.maxWidth - root.width
+
+            property real dragStartX: 0
+            property real dragStartWidth: 0
+
+            onPressed: function(mouse) {
+                dragStartX = mapToItem(null, mouse.x, 0).x
+                dragStartWidth = root.userWidth
+            }
+
+            onPositionChanged: function(mouse) {
+                if (!pressed)
+                    return
+                var globalX = mapToItem(null, mouse.x, 0).x
+                var delta = globalX - dragStartX
+                root.userWidth = Math.max(root.minWidth,
+                    Math.min(root.maxWidth, dragStartWidth + delta))
+            }
+
+            onDoubleClicked: {
+                root.userWidth = root.defaultWidth
+            }
+        }
+
+        ToolTip.visible: resizeHandleMouseArea.containsMouse && !resizeHandleMouseArea.pressed
+        ToolTip.text: qsTr("拖拽调整宽度，双击恢复默认")
+        ToolTip.delay: 600
     }
 }

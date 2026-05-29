@@ -6,10 +6,12 @@
         <file>components/NavigationItem.qml</file>
         <file>components/AppSidebar.qml</file>
         <file>components/AppTopBar.qml</file>
+        <file>components/ShortcutCard.qml</file>
         <file>pages/TranslatePage.qml</file>
         <file>pages/ClipboardPage.qml</file>
         <file>pages/ScreenshotPage.qml</file>
         <file>pages/HomePage.qml</file>
         <file>pages/SettingPage.qml</file>
+        <file>pages/TodoPage.qml</file>
     </qresource>
 </RCC>

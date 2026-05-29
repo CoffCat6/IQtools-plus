@@ -86,6 +86,8 @@ QtObject {
             return qsTr("剪贴板");
         case 2:
             return qsTr("截图");
+        case 3:
+            return qsTr("待办");
         default:
             return qsTr("IQtools Plus");
         }
@@ -99,6 +101,8 @@ QtObject {
             return qsTr("历史记录、搜索过滤与常用项管理");
         case 2:
             return qsTr("区域截图、延时截图与后续标注入口");
+        case 3:
+            return qsTr("任务管理、待办事项与工作计划");
         default:
             return qsTr("高质量桌面效率工具箱");
         }

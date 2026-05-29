@@ -34,6 +34,8 @@ QString AppShellViewModel::pageTitle() const {
     case 3:
       return tr("截图");
     case 4:
+      return tr("待办");
+    case 5:
       return tr("设置");
     default:
       return tr("IQtools Plus");
@@ -51,6 +53,8 @@ QString AppShellViewModel::pageSubtitle() const {
     case 3:
       return tr("截图、延时截图与后续标注入口");
     case 4:
+      return tr("任务管理、待办事项与工作计划");
+    case 5:
       return tr("设置");
     default:
       return tr("企业级桌面效率工具箱");
@@ -66,7 +70,7 @@ QObject* AppShellViewModel::translateViewModel() const noexcept {
 }
 
 void AppShellViewModel::setCurrentPageIndex(int pageIndex) {
-  if (pageIndex < 0 || pageIndex > 4) {
+  if (pageIndex < 0 || pageIndex > 5) {
     qWarning() << "[AppShellViewModel] Invalid page index:" << pageIndex;
     return;
   }

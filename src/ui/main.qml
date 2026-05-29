@@ -45,7 +45,8 @@ ApplicationWindow {
         spacing: theme.spacingLG
 
         AppSidebar {
-            Layout.preferredWidth: root.sidebarCollapsed ? 64 : 260
+            id: sidebar
+            Layout.preferredWidth: sidebar.implicitWidth
             Layout.fillHeight: true
 
             theme: theme
@@ -62,13 +63,6 @@ ApplicationWindow {
 
             onThemeToggleRequested: {
                 root.viewModel.toggleDarkMode()
-            }
-
-            Behavior on Layout.preferredWidth {
-                NumberAnimation {
-                    duration: theme.durationBase
-                    easing.type: Easing.OutCubic
-                }
             }
         }
 
@@ -100,6 +94,9 @@ ApplicationWindow {
                         HomePage {
                             theme: theme
                             viewModel: root.viewModel.homeViewModel
+                            navigateTo: function(index) {
+                                root.viewModel.navigateTo(index)
+                            }
                         }
 
                         TranslatePage {
@@ -113,6 +110,10 @@ ApplicationWindow {
                         }
 
                         ScreenshotPage {
+                            theme: theme
+                        }
+
+                        TodoPage {
                             theme: theme
                         }
 
