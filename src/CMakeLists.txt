@@ -15,6 +15,12 @@ qt_add_executable(iqtoolsplus_app
     ui/qml.qrc
 )
 
+# Windows application icon
+if(WIN32)
+    target_sources(iqtoolsplus_app PRIVATE app.rc)
+    target_link_libraries(iqtoolsplus_app PRIVATE user32)
+endif()
+
 target_link_libraries(iqtoolsplus_app
     PRIVATE
         iqtools_app
@@ -24,6 +30,7 @@ target_link_libraries(iqtoolsplus_app
 target_compile_definitions(iqtoolsplus_app
     PRIVATE
         IQTOOLS_GIT_VERSION="${IQTOOLS_GIT_DESCRIBE}"
+        IQTOOLS_APP_VERSION="${PROJECT_VERSION}"
 )
 
 set_target_properties(iqtoolsplus_app PROPERTIES

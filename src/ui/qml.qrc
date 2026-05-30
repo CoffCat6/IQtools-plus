@@ -13,5 +13,6 @@
         <file>pages/HomePage.qml</file>
         <file>pages/SettingPage.qml</file>
         <file>pages/TodoPage.qml</file>
+        <!-- <file>icon.png</file> -->
     </qresource>
 </RCC>
