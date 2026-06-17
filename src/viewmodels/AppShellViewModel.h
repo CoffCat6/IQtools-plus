@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QtQml/qqmlregistration.h>
+#include <QStyleHints>
 
 class HomeViewModel;
 class TranslateViewModel;
@@ -13,6 +14,8 @@ class TranslateViewModel;
  * 中文说明：
  * - 管理主界面的页面切换、主题状态、标题信息
  * - 聚合子 ViewModel，供 QML 根对象统一访问
+ * - 支持暗色模式持久化存储（QSettings）
+ * - 支持跟随系统主题（QStyleHints::colorScheme）
  */
 class AppShellViewModel final : public QObject
 {
@@ -29,6 +32,12 @@ class AppShellViewModel final : public QObject
                READ darkMode
                WRITE setDarkMode
                NOTIFY darkModeChanged
+               FINAL)
+
+    Q_PROPERTY(bool followSystemTheme
+               READ followSystemTheme
+               WRITE setFollowSystemTheme
+               NOTIFY followSystemThemeChanged
                FINAL)
 
     Q_PROPERTY(QString pageTitle
@@ -57,6 +66,7 @@ public:
 
     [[nodiscard]] int currentPageIndex() const noexcept;
     [[nodiscard]] bool darkMode() const noexcept;
+    [[nodiscard]] bool followSystemTheme() const noexcept;
     [[nodiscard]] QString pageTitle() const;
     [[nodiscard]] QString pageSubtitle() const;
     [[nodiscard]] QObject* homeViewModel() const noexcept;
@@ -64,6 +74,7 @@ public:
 
     void setCurrentPageIndex(int pageIndex);
     void setDarkMode(bool enabled);
+    void setFollowSystemTheme(bool enabled);
 
 public slots:
     Q_INVOKABLE void toggleDarkMode() noexcept;
@@ -72,10 +83,16 @@ public slots:
 signals:
     void currentPageIndexChanged();
     void darkModeChanged();
+    void followSystemThemeChanged();
 
 private:
+    void saveSettings();
+    void loadSettings();
+    void syncDarkModeFromSystem();
+
     int m_currentPageIndex{0};
     bool m_darkMode{false};
+    bool m_followSystemTheme{false};
     HomeViewModel* m_homeViewModel{nullptr};
     TranslateViewModel* m_translateViewModel{nullptr};
 };

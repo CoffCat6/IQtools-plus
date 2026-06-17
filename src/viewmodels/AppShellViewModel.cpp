@@ -2,6 +2,9 @@
 #include "viewmodels/AppShellViewModel.h"
 
 #include <QDebug>
+#include <QSettings>
+#include <QStyleHints>
+#include <QGuiApplication>
 
 #include "viewmodels/HomeViewModel.h"
 #include "viewmodels/TranslateViewModel.h"
@@ -10,10 +13,13 @@ AppShellViewModel::AppShellViewModel(QObject* parent)
     : QObject(parent),
       m_homeViewModel(new HomeViewModel(this)),
       m_translateViewModel(new TranslateViewModel(this)) {
-  qInfo() << "[AppShellViewModel] Created";
+  loadSettings();
+  qInfo() << "[AppShellViewModel] Created | darkMode:" << m_darkMode
+          << "followSystem:" << m_followSystemTheme;
 }
 
 AppShellViewModel::~AppShellViewModel() {
+  saveSettings();
   qInfo() << "[AppShellViewModel] Destroyed";
 }
 
@@ -22,6 +28,10 @@ int AppShellViewModel::currentPageIndex() const noexcept {
 }
 
 bool AppShellViewModel::darkMode() const noexcept { return m_darkMode; }
+
+bool AppShellViewModel::followSystemTheme() const noexcept {
+  return m_followSystemTheme;
+}
 
 QString AppShellViewModel::pageTitle() const {
   switch (m_currentPageIndex) {
@@ -47,7 +57,7 @@ QString AppShellViewModel::pageSubtitle() const {
     case 0:
       return tr("欢迎使用 IQtools Plus！请选择左侧功能导航进入对应页面。");
     case 1:
-      return tr("多引擎翻译入口与结果展示骨架");
+      return tr("多引擎翻译入口与结果展示");
     case 2:
       return tr("剪贴板历史、搜索与分类入口");
     case 3:
@@ -93,12 +103,66 @@ void AppShellViewModel::setDarkMode(bool enabled) {
 
   m_darkMode = enabled;
   emit darkModeChanged();
+  saveSettings();
 
   qInfo() << "[AppShellViewModel] Dark mode changed:" << m_darkMode;
 }
 
-void AppShellViewModel::toggleDarkMode() noexcept { setDarkMode(!m_darkMode); }
+void AppShellViewModel::setFollowSystemTheme(bool enabled) {
+  if (m_followSystemTheme == enabled) {
+    return;
+  }
+
+  m_followSystemTheme = enabled;
+  emit followSystemThemeChanged();
+
+  if (m_followSystemTheme) {
+    // Connect to system theme changes
+    syncDarkModeFromSystem();
+    if (auto* app = qobject_cast<QGuiApplication*>(
+            QCoreApplication::instance())) {
+      connect(app->styleHints(), &QStyleHints::colorSchemeChanged, this,
+              &AppShellViewModel::syncDarkModeFromSystem);
+    }
+  }
+
+  saveSettings();
+  qInfo() << "[AppShellViewModel] Follow system theme:" << m_followSystemTheme;
+}
+
+void AppShellViewModel::toggleDarkMode() noexcept {
+  setDarkMode(!m_darkMode);
+}
 
 void AppShellViewModel::navigateTo(int pageIndex) {
   setCurrentPageIndex(pageIndex);
+}
+
+void AppShellViewModel::saveSettings() {
+  QSettings settings;
+  settings.setValue(QStringLiteral("theme/darkMode"), m_darkMode);
+  settings.setValue(QStringLiteral("theme/followSystem"), m_followSystemTheme);
+}
+
+void AppShellViewModel::loadSettings() {
+  QSettings settings;
+  m_followSystemTheme =
+      settings.value(QStringLiteral("theme/followSystem"), false).toBool();
+  if (m_followSystemTheme) {
+    syncDarkModeFromSystem();
+  } else {
+    m_darkMode =
+        settings.value(QStringLiteral("theme/darkMode"), false).toBool();
+  }
+}
+
+void AppShellViewModel::syncDarkModeFromSystem() {
+  if (!m_followSystemTheme) return;
+
+  if (auto* app =
+          qobject_cast<QGuiApplication*>(QCoreApplication::instance())) {
+    const bool systemDark =
+        app->styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+    setDarkMode(systemDark);
+  }
 }

@@ -13,11 +13,13 @@ ApplicationWindow {
 
     // Sidebar UI state
     property bool sidebarCollapsed: false
+    // Track previous page index for slide direction
+    property int previousPageIndex: 0
 
     width: 1440
     height: 920
-    minimumWidth: 1160
-    minimumHeight: 760
+    minimumWidth: 800
+    minimumHeight: 600
     visible: true
     title: qsTr("IQtools Plus")
 
@@ -41,8 +43,14 @@ ApplicationWindow {
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: theme.spacingLG
-        spacing: theme.spacingLG
+        anchors.margins: {
+            if (root.width < theme.bpCompact) return theme.spacingSM;
+            return theme.spacingLG;
+        }
+        spacing: {
+            if (root.width < theme.bpCompact) return theme.spacingSM;
+            return theme.spacingLG;
+        }
 
         AppSidebar {
             id: sidebar
@@ -51,9 +59,10 @@ ApplicationWindow {
 
             theme: theme
             currentIndex: root.viewModel.currentPageIndex
-            collapsed: root.sidebarCollapsed
+            collapsed: root.sidebarCollapsed || (root.width < theme.bpCompact)
 
             onPageSelected: function(pageIndex) {
+                root.previousPageIndex = root.viewModel.currentPageIndex
                 root.viewModel.navigateTo(pageIndex)
             }
 
@@ -85,44 +94,125 @@ ApplicationWindow {
                     theme: theme
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    padding: theme.spacingXL
+                    padding: {
+                        if (root.width < theme.bpCompact) return theme.spacingMD;
+                        return theme.spacingXL;
+                    }
 
-                    StackLayout {
+                    // Page stack with slide transition
+                    Item {
                         anchors.fill: parent
-                        currentIndex: root.viewModel.currentPageIndex
+                        anchors.margins: {
+                            if (root.width < theme.bpCompact) return theme.spacingSM;
+                            return theme.spacingMD;
+                        }
+                        clip: true
 
-                        HomePage {
-                            theme: theme
-                            viewModel: root.viewModel.homeViewModel
-                            navigateTo: function(index) {
-                                root.viewModel.navigateTo(index)
+                        StackLayout {
+                            id: pageStack
+                            anchors.fill: parent
+                            currentIndex: root.viewModel.currentPageIndex
+
+                            // Slide transition: animate x offset on the active page
+                            property real slideOffset: {
+                                if (!pageStack.currentItem) return 0;
+                                return pageStack.currentItem.visible ? 0 : 80;
                             }
-                        }
 
-                        TranslatePage {
-                            theme: theme
-                            viewModel: root.viewModel.translateViewModel
-                        }
+                            // Fade+slide transition when page changes
+                            Behavior on currentIndex {
+                                id: pageTransition
+                                enabled: false  // start disabled, enable after init
+                            }
 
-                        ClipboardPage {
-                            theme: theme
-                            // viewModel: root.viewModel.clipboardViewModel
-                        }
+                            Component.onCompleted: {
+                                pageTransition.enabled = true;
+                            }
 
-                        ScreenshotPage {
-                            theme: theme
-                        }
+                            HomePage {
+                                id: homePage
+                                theme: theme
+                                viewModel: root.viewModel.homeViewModel
+                                navigateTo: function(index) {
+                                    root.previousPageIndex = root.viewModel.currentPageIndex
+                                    root.viewModel.navigateTo(index)
+                                }
+                                // Fade in/out
+                                opacity: pageStack.currentIndex === 0 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
 
-                        TodoPage {
-                            theme: theme
-                        }
+                            TranslatePage {
+                                id: translatePage
+                                theme: theme
+                                viewModel: root.viewModel.translateViewModel
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 1 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
 
-                        SettingPage {
-                            theme: theme
+                            ClipboardPage {
+                                id: clipboardPage
+                                theme: theme
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 2 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
+
+                            ScreenshotPage {
+                                id: screenshotPage
+                                theme: theme
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 3 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
+
+                            TodoPage {
+                                id: todoPage
+                                theme: theme
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 4 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
+
+                            SettingPage {
+                                id: settingPage
+                                theme: theme
+                                viewModel: root.viewModel
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 5 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    // Global Toast
+    AppToast {
+        id: appToast
+        theme: theme
+        parent: root.contentItem
+    }
+
+    // Global Confirm Dialog
+    AppConfirmDialog {
+        id: appConfirmDialog
+        theme: theme
+        parent: root.contentItem
     }
 }

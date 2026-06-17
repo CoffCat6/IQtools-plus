@@ -2,6 +2,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../theme"
 
 Rectangle {
     id: root
@@ -11,12 +12,13 @@ Rectangle {
     property string title: ""
     property string description: ""
     property bool comingSoon: false
+    property bool clickable: true
 
     signal clicked()
 
     implicitHeight: 120
     radius: theme.radiusLG
-    color: mouseArea.containsMouse
+    color: mouseArea.containsMouse && !root.comingSoon
            ? Qt.rgba(theme.primaryColor.r, theme.primaryColor.g, theme.primaryColor.b, 0.06)
            : theme.surfaceColor
 
@@ -31,9 +33,9 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        cursorShape: root.clickable && !root.comingSoon ? Qt.PointingHandCursor : Qt.ArrowCursor
         onClicked: {
-            if (!root.comingSoon) {
+            if (!root.comingSoon && root.clickable) {
                 root.clicked()
             }
         }
@@ -41,25 +43,25 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: root.theme.spacingMD
-        spacing: root.theme.spacingSM
+        anchors.margins: theme.spacingMD
+        spacing: theme.spacingSM
 
         // 图标
         Rectangle {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
-            radius: root.theme.radiusMD
+            radius: theme.radiusMD
             color: root.comingSoon
-                   ? root.theme.backgroundColor
-                   : root.theme.primarySoftColor
+                   ? theme.backgroundColor
+                   : theme.primarySoftColor
 
             Text {
                 anchors.centerIn: parent
                 text: root.icon
                 font.pixelSize: 20
                 color: root.comingSoon
-                       ? root.theme.textTertiary
-                       : root.theme.primaryColor
+                       ? theme.textTertiary
+                       : theme.primaryColor
             }
         }
 
@@ -67,11 +69,11 @@ Rectangle {
         Text {
             text: root.title
             color: root.comingSoon
-                   ? root.theme.textTertiary
-                   : root.theme.textPrimary
-            font.family: root.theme.fontFamily
-            font.pixelSize: root.theme.fontSizeBase
-            font.weight: root.theme.fontWeightSemibold
+                   ? theme.textTertiary
+                   : theme.textPrimary
+            font.family: theme.fontFamily
+            font.pixelSize: theme.fontSizeBase
+            font.weight: theme.fontWeightSemibold
         }
 
         // 描述
@@ -80,9 +82,9 @@ Rectangle {
             text: root.comingSoon
                   ? qsTr("即将上线")
                   : root.description
-            color: root.theme.textTertiary
-            font.family: root.theme.fontFamily
-            font.pixelSize: root.theme.fontSizeSM
+            color: theme.textTertiary
+            font.family: theme.fontFamily
+            font.pixelSize: theme.fontSizeSM
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             maximumLineCount: 2

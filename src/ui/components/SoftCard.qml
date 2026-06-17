@@ -10,13 +10,16 @@ Item {
 
     property int padding: theme.spacingLG
     property bool hoverable: false
+    property bool clickable: false
     property bool highlighted: false
+
+    signal clicked()
 
     implicitWidth: 240
     implicitHeight: 160
 
     property bool hovered: mouseArea.containsMouse
-    property real cardOffset: hoverable && hovered ? -2 : 0
+    property real cardOffset: (hoverable || clickable) && hovered ? -2 : 0
 
     Rectangle {
         id: shadowLayer
@@ -26,7 +29,7 @@ Item {
         anchors.rightMargin: -2
         anchors.bottomMargin: -6
         radius: backgroundRect.radius + 2
-        color: root.theme.shadow(hoverable && hovered ? 3 : 2)
+        color: root.theme.shadow((hoverable || clickable) && hovered ? 3 : 2)
 
         Behavior on color {
             ColorAnimation {
@@ -60,8 +63,11 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: root.hoverable
-        hoverEnabled: root.hoverable
-        cursorShape: root.hoverable ? Qt.PointingHandCursor : Qt.ArrowCursor
+        enabled: root.hoverable || root.clickable
+        hoverEnabled: root.hoverable || root.clickable
+        cursorShape: (root.hoverable || root.clickable) ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: {
+            if (root.clickable) root.clicked()
+        }
     }
 }

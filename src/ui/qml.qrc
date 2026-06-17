@@ -7,6 +7,14 @@
         <file>components/AppSidebar.qml</file>
         <file>components/AppTopBar.qml</file>
         <file>components/ShortcutCard.qml</file>
+        <file>components/AppButton.qml</file>
+        <file>components/AppTextField.qml</file>
+        <file>components/AppComboBox.qml</file>
+        <file>components/AppListItem.qml</file>
+        <file>components/AppCheckbox.qml</file>
+        <file>components/AppToast.qml</file>
+        <file>components/AppConfirmDialog.qml</file>
+        <file>components/AppPage.qml</file>
         <file>pages/TranslatePage.qml</file>
         <file>pages/ClipboardPage.qml</file>
         <file>pages/ScreenshotPage.qml</file>
