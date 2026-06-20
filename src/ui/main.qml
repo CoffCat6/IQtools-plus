@@ -135,10 +135,26 @@ ApplicationWindow {
                                 viewModel: root.viewModel.homeViewModel
                                 navigateTo: function(index) {
                                     root.previousPageIndex = root.viewModel.currentPageIndex
-                                    root.viewModel.navigateTo(index)
+                                    // 转换索引：AI助手已移到第二位
+                                    var newIndex = index
+                                    if (index === 1) newIndex = 1  // 翻译原本是1，现在变成2
+                                    else if (index === 2) newIndex = 3  // 剪贴板原本是2，现在变成3
+                                    else if (index === 3) newIndex = 4  // 截图原本是3，现在变成4
+                                    else if (index === 4) newIndex = 5  // 待办原本是4，现在变成5
+                                    root.viewModel.navigateTo(newIndex)
                                 }
                                 // Fade in/out
                                 opacity: pageStack.currentIndex === 0 ? 1 : 0
+                                Behavior on opacity {
+                                    NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
+                                }
+                            }
+
+                            AIAssistantPage {
+                                id: aiAssistantPage
+                                theme: theme
+                                toast: appToast
+                                opacity: pageStack.currentIndex === 1 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }
@@ -149,7 +165,7 @@ ApplicationWindow {
                                 theme: theme
                                 viewModel: root.viewModel.translateViewModel
                                 toast: appToast
-                                opacity: pageStack.currentIndex === 1 ? 1 : 0
+                                opacity: pageStack.currentIndex === 2 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }
@@ -159,7 +175,7 @@ ApplicationWindow {
                                 id: clipboardPage
                                 theme: theme
                                 toast: appToast
-                                opacity: pageStack.currentIndex === 2 ? 1 : 0
+                                opacity: pageStack.currentIndex === 3 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }
@@ -169,7 +185,7 @@ ApplicationWindow {
                                 id: screenshotPage
                                 theme: theme
                                 toast: appToast
-                                opacity: pageStack.currentIndex === 3 ? 1 : 0
+                                opacity: pageStack.currentIndex === 4 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }
@@ -179,7 +195,7 @@ ApplicationWindow {
                                 id: todoPage
                                 theme: theme
                                 toast: appToast
-                                opacity: pageStack.currentIndex === 4 ? 1 : 0
+                                opacity: pageStack.currentIndex === 5 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }
@@ -190,7 +206,7 @@ ApplicationWindow {
                                 theme: theme
                                 viewModel: root.viewModel
                                 toast: appToast
-                                opacity: pageStack.currentIndex === 5 ? 1 : 0
+                                opacity: pageStack.currentIndex === 6 ? 1 : 0
                                 Behavior on opacity {
                                     NumberAnimation { duration: theme.durationLong; easing.type: Easing.OutCubic }
                                 }

@@ -30,6 +30,10 @@ Item {
             badge: qsTr("首")
         },
         {
+            title: qsTr("AI 助手"),
+            badge: qsTr("AI")
+        },
+        {
             title: qsTr("翻译"),
             badge: qsTr("译")
         },

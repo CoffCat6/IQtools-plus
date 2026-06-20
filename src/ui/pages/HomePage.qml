@@ -72,7 +72,8 @@ Item {
                     padding: root.theme.spacingSM
 
                     RowLayout {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                         spacing: root.theme.spacingSM
 
                         Text {
@@ -262,7 +263,8 @@ Item {
                     visible: root.searchQuery.length > 0 && !root.hasSearchResults
 
                     ColumnLayout {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                         spacing: root.theme.spacingSM
 
                         Item { Layout.fillHeight: true }
@@ -317,7 +319,6 @@ Item {
                 SoftCard {
                     theme: root.theme
                     Layout.fillWidth: true
-                    implicitHeight: 72
 
                     Text {
                         text: root.viewModel.welcomeMessage
@@ -344,7 +345,6 @@ Item {
                 SoftCard {
                     theme: root.theme
                     Layout.fillWidth: true
-                    implicitHeight: 90
 
                     Text {
                         text: root.viewModel.currentDate
@@ -367,7 +367,6 @@ Item {
                 SoftCard {
                     theme: root.theme
                     Layout.fillWidth: true
-                    implicitHeight: 90
                     clickable: true
 
                     RowLayout {
@@ -413,11 +412,9 @@ Item {
                 SoftCard {
                     theme: root.theme
                     Layout.fillWidth: true
-                    implicitHeight: 44
 
                     RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: root.theme.spacingMD
+                        Layout.fillWidth: true
                         spacing: root.theme.spacingSM
 
                         Text {
@@ -434,13 +431,14 @@ Item {
                             font.weight: root.theme.fontWeightSemibold
                         }
 
-                        Item { Layout.fillWidth: true }
-
                         Text {
+                            Layout.fillWidth: true
                             text: root.viewModel.totalPagesText + " \u00B7 " + root.viewModel.totalToolsText
                             color: root.theme.textTertiary
                             font.family: root.theme.fontFamily
                             font.pixelSize: root.theme.fontSizeSM
+                            horizontalAlignment: Text.AlignRight
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }

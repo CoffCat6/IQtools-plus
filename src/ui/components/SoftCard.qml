@@ -15,8 +15,8 @@ Item {
 
     signal clicked()
 
-    implicitWidth: 240
-    implicitHeight: 160
+    implicitWidth: Math.max(120, contentLayout.implicitWidth + padding * 2)
+    implicitHeight: contentLayout.implicitHeight + padding * 2
 
     property bool hovered: mouseArea.containsMouse
     property real cardOffset: (hoverable || clickable) && hovered ? -2 : 0
