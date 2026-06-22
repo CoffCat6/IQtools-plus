@@ -29,6 +29,27 @@ AppPage {
         { title: "准备演示材料", priority: "中", deadline: "本周截止", done: false }
     ]
 
+    // 计算进度
+    function calculateCompletedCount() {
+        var count = 0
+        for (var i = 0; i < todoItems.length; ++i) {
+            if (todoItems[i].done) count++
+        }
+        return count
+    }
+    readonly property int completedCount: calculateCompletedCount()
+    readonly property int totalCount: todoItems.length
+    readonly property int progressPercent: totalCount > 0 ? Math.round(completedCount / totalCount * 100) : 0
+
+    // 更新待办项状态
+    function toggleTodo(index, checked) {
+        var item = todoItems[index]
+        if (item) {
+            item.done = checked
+            todoItemsChanged()
+        }
+    }
+
     // Header card
     SoftCard {
         theme: root.theme
@@ -57,14 +78,15 @@ AppPage {
         theme: root.theme
         Layout.fillWidth: true
         Layout.preferredHeight: 48
+        padding: root.theme.spacingMD
 
         RowLayout {
-            anchors.fill: parent
-            anchors.margins: root.theme.spacingMD
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             spacing: root.theme.spacingSM
 
             Text {
-                text: qsTr("已完成 %1 / %2").arg(5).arg(15)
+                text: qsTr("已完成 %1 / %2").arg(root.completedCount).arg(root.totalCount)
                 color: root.theme.textPrimary
                 font.family: root.theme.fontFamily
                 font.pixelSize: root.theme.fontSizeBase
@@ -74,7 +96,7 @@ AppPage {
             Item { Layout.fillWidth: true }
 
             Text {
-                text: qsTr("进度 %1%").arg(Math.round(5/15 * 100))
+                text: qsTr("进度 %1%").arg(root.progressPercent)
                 color: root.theme.successColor
                 font.family: root.theme.fontFamily
                 font.pixelSize: root.theme.fontSizeBase
@@ -93,17 +115,22 @@ AppPage {
 
             theme: root.theme
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
+            Layout.preferredHeight: 68
+            highlighted: modelData.done
+            padding: root.theme.spacingMD
 
             RowLayout {
-                anchors.fill: parent
-                anchors.margins: root.theme.spacingMD
+                Layout.fillWidth: true
+                Layout.fillHeight: true
                 spacing: root.theme.spacingMD
 
                 AppCheckbox {
+                    Layout.preferredWidth: 24
+                    Layout.preferredHeight: 24
                     theme: root.theme
                     checked: modelData.done
                     onToggled: function(checked) {
+                        root.toggleTodo(index, checked)
                         if (root.toast) {
                             root.toast.show(
                                 checked ? qsTr('"%1" 已完成').arg(modelData.title)
@@ -116,30 +143,52 @@ AppPage {
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 2
+                    Layout.fillHeight: true
+                    spacing: 6
 
                     Text {
+                        Layout.fillWidth: true
                         text: modelData.title
                         color: modelData.done ? root.theme.textTertiary : root.theme.textPrimary
                         font.family: root.theme.fontFamily
                         font.pixelSize: root.theme.fontSizeBase
                         font.weight: root.theme.fontWeightMedium
+                        font.strikeout: modelData.done
                         elide: Text.ElideRight
+                        verticalAlignment: Text.AlignVCenter
                     }
 
                     RowLayout {
                         spacing: root.theme.spacingSM
-                        Text {
-                            text: modelData.priority + qsTr("优先级")
-                            color: modelData.priority === "高" ? root.theme.errorColor
-                                   : (modelData.priority === "中" ? root.theme.warningColor
-                                                                  : root.theme.textTertiary)
-                            font.family: root.theme.fontFamily
-                            font.pixelSize: root.theme.fontSizeSM
-                            font.weight: root.theme.fontWeightSemibold
+                        Layout.fillWidth: true
+
+                        Rectangle {
+                            Layout.preferredHeight: 20
+                            Layout.preferredWidth: priorityText.implicitWidth + 12
+                            radius: 10
+                            color: modelData.priority === "高" ? root.theme.errorColor + "20"
+                                   : (modelData.priority === "中" ? root.theme.warningColor + "20"
+                                                                   : root.theme.textTertiary + "20")
+                            border.width: 1
+                            border.color: modelData.priority === "高" ? root.theme.errorColor
+                                         : (modelData.priority === "中" ? root.theme.warningColor
+                                                                       : root.theme.dividerColor)
+
+                            Text {
+                                id: priorityText
+                                anchors.centerIn: parent
+                                text: modelData.priority
+                                color: modelData.priority === "高" ? root.theme.errorColor
+                                       : (modelData.priority === "中" ? root.theme.warningColor
+                                                                       : root.theme.textTertiary)
+                                font.family: root.theme.fontFamily
+                                font.pixelSize: root.theme.fontSizeXS
+                                font.weight: root.theme.fontWeightBold
+                            }
                         }
+
                         Text {
-                            text: "· " + modelData.deadline
+                            text: modelData.deadline
                             color: root.theme.textTertiary
                             font.family: root.theme.fontFamily
                             font.pixelSize: root.theme.fontSizeSM

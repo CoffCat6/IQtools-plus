@@ -2,12 +2,14 @@
 #include "viewmodels/TranslateViewModel.h"
 
 #include <QClipboard>
-#include <QDebug>
 #include <QGuiApplication>
 #include <QTimer>
 
+#include "core/log/Logger.h"
+#include "core/log/LogModules.h"
+
 TranslateViewModel::TranslateViewModel(QObject* parent) : QObject(parent) {
-  qInfo() << "[TranslateViewModel] Initialized with mock engine";
+  TB_LOG_INFO(LogModule::Translate, "TranslateViewModel initialized (mock engine)");
 }
 
 QString TranslateViewModel::sourceText() const noexcept { return m_sourceText; }
@@ -116,8 +118,8 @@ void TranslateViewModel::translate() {
 
         emit translateSucceeded(m_resultText);
 
-        qInfo() << "[TranslateViewModel] Mock translate finished in"
-                << actualElapsed << "ms";
+        TB_LOG_INFO(LogModule::Translate, "Mock translation done in {}ms | engine={} from={} to={}",
+            actualElapsed, m_currentEngine, m_fromLanguage, m_toLanguage);
       });
 }
 
@@ -127,7 +129,7 @@ void TranslateViewModel::clear() {
   setErrorMessage(QString());
   setLatencyInfo(QStringLiteral("-- ms"));
 
-  qInfo() << "[TranslateViewModel] Cleared";
+  TB_LOG_DEBUG(LogModule::Translate, "Input cleared");
 }
 
 void TranslateViewModel::copyResult() {
@@ -139,16 +141,17 @@ void TranslateViewModel::copyResult() {
   if (QClipboard* clipboard = QGuiApplication::clipboard();
       clipboard != nullptr) {
     clipboard->setText(m_resultText);
-    qInfo() << "[TranslateViewModel] Result copied to clipboard";
+    TB_LOG_INFO(LogModule::Translate, "Result copied to clipboard (len={})",
+        m_resultText.length());
   } else {
     setErrorMessage(tr("无法访问系统剪贴板。"));
-    qWarning() << "[TranslateViewModel] Clipboard is unavailable";
+    TB_LOG_WARN(LogModule::Translate, "System clipboard unavailable");
   }
 }
 
 void TranslateViewModel::switchLanguages() {
   if (m_fromLanguage == QStringLiteral("auto")) {
-    qInfo() << "[TranslateViewModel] Source language is auto, skip switching";
+    TB_LOG_DEBUG(LogModule::Translate, "Language switch skipped: source is 'auto'");
     return;
   }
 
@@ -156,8 +159,7 @@ void TranslateViewModel::switchLanguages() {
   setFromLanguage(m_toLanguage);
   setToLanguage(oldFrom);
 
-  qInfo() << "[TranslateViewModel] Languages switched:" << m_fromLanguage
-          << "->" << m_toLanguage;
+  TB_LOG_INFO(LogModule::Translate, "Languages swapped: {} <-> {}", m_fromLanguage, m_toLanguage);
 }
 
 void TranslateViewModel::setResultText(const QString& text) {

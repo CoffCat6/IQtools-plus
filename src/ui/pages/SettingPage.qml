@@ -360,49 +360,334 @@ AppPage {
                         Item { Layout.fillHeight: true }
                     }
 
-                    // Placeholder for other categories (simplified)
-                    property var placeholderCategories: [1, 2, 3, 4, 5]
-                    property var placeholderTitles: [qsTr("截图设置"), qsTr("翻译设置"), qsTr("剪贴板设置"), qsTr("高级设置"), qsTr("关于")]
-
-                    Repeater {
-                        model: 5
-
-                        delegate: ColumnLayout {
-                            required property int index
-                            visible: root.currentCategory === index + 1
-                            Layout.fillWidth: true
-                            spacing: root.theme.spacingLG
-
+                    // ── 截图设置 (placeholder) ──
+                    ColumnLayout {
+                        visible: root.currentCategory === 1
+                        Layout.fillWidth: true
+                        spacing: root.theme.spacingLG
+                        Text {
+                            text: qsTr("截图设置")
+                            color: root.theme.textPrimary; font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.h2Size; font.weight: root.theme.h2Weight
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
+                        Rectangle {
+                            Layout.fillWidth: true; implicitHeight: 100
+                            color: root.theme.surfaceColor; radius: root.theme.radiusLG
                             Text {
-                                text: ["截图设置", "翻译设置", "剪贴板设置", "高级设置", "关于"][index]
-                                color: root.theme.textPrimary
-                                font.family: root.theme.fontFamily
-                                font.pixelSize: root.theme.h2Size
-                                font.weight: root.theme.h2Weight
+                                anchors.centerIn: parent
+                                text: qsTr("截图设置将在后续实现...")
+                                color: root.theme.textSecondary; font.family: root.theme.fontFamily
+                                font.pixelSize: root.theme.fontSizeBase
                             }
+                        }
+                        Item { Layout.fillHeight: true }
+                    }
 
-                            Rectangle {
-                                Layout.fillWidth: true; height: 1; color: root.theme.dividerColor
+                    // ── 翻译设置 (placeholder) ──
+                    ColumnLayout {
+                        visible: root.currentCategory === 2
+                        Layout.fillWidth: true
+                        spacing: root.theme.spacingLG
+                        Text {
+                            text: qsTr("翻译设置")
+                            color: root.theme.textPrimary; font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.h2Size; font.weight: root.theme.h2Weight
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
+                        Rectangle {
+                            Layout.fillWidth: true; implicitHeight: 100
+                            color: root.theme.surfaceColor; radius: root.theme.radiusLG
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("翻译设置将在后续实现...")
+                                color: root.theme.textSecondary; font.family: root.theme.fontFamily
+                                font.pixelSize: root.theme.fontSizeBase
                             }
+                        }
+                        Item { Layout.fillHeight: true }
+                    }
 
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: 100
-                                color: root.theme.surfaceColor
-                                radius: root.theme.radiusLG
+                    // ── 剪贴板设置 (placeholder) ──
+                    ColumnLayout {
+                        visible: root.currentCategory === 3
+                        Layout.fillWidth: true
+                        spacing: root.theme.spacingLG
+                        Text {
+                            text: qsTr("剪贴板设置")
+                            color: root.theme.textPrimary; font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.h2Size; font.weight: root.theme.h2Weight
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
+                        Rectangle {
+                            Layout.fillWidth: true; implicitHeight: 100
+                            color: root.theme.surfaceColor; radius: root.theme.radiusLG
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("剪贴板设置将在后续实现...")
+                                color: root.theme.textSecondary; font.family: root.theme.fontFamily
+                                font.pixelSize: root.theme.fontSizeBase
+                            }
+                        }
+                        Item { Layout.fillHeight: true }
+                    }
+
+                    // ── 高级设置：日志面板 ──
+                    ColumnLayout {
+                        visible: root.currentCategory === 4
+                        Layout.fillWidth: true
+                        spacing: root.theme.spacingLG
+
+                        Text {
+                            text: qsTr("高级设置")
+                            color: root.theme.textPrimary
+                            font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.h2Size
+                            font.weight: root.theme.h2Weight
+                        }
+
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
+
+                        // ── 日志级别控制 ──
+                        Rectangle {
+                            Layout.fillWidth: true
+                            implicitHeight: levelContent.implicitHeight + root.theme.spacingLG * 2
+                            color: root.theme.surfaceColor
+                            radius: root.theme.radiusLG
+
+                            ColumnLayout {
+                                id: levelContent
+                                anchors {
+                                    left: parent.left; right: parent.right
+                                    top: parent.top; margins: root.theme.spacingLG
+                                }
+                                spacing: root.theme.spacingMD
 
                                 Text {
-                                    anchors.centerIn: parent
-                                    text: ["截图设置", "翻译设置", "剪贴板设置", "高级设置", "关于"]
-                                          [index] + qsTr("将在后续实现...")
+                                    text: qsTr("日志级别")
+                                    color: root.theme.textPrimary
+                                    font.family: root.theme.fontFamily
+                                    font.pixelSize: root.theme.h3Size
+                                    font.weight: root.theme.h3Weight
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: root.theme.spacingMD
+
+                                    Text {
+                                        text: qsTr("控制台")
+                                        color: root.theme.textSecondary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.fontSizeBase
+                                    }
+
+                                    AppComboBox {
+                                        id: consoleLevelCombo
+                                        theme: root.theme
+                                        Layout.preferredWidth: 140
+                                        model: ["Trace", "Debug", "Info", "Warn", "Error", "Critical", "Off"]
+                                        currentIndex: root.viewModel.logViewModel.consoleLevel
+                                        onActivated: function(idx) {
+                                            root.viewModel.logViewModel.consoleLevel = idx
+                                            if (root.toast) root.toast.show(qsTr("控制台日志级别已更新"), "success")
+                                        }
+                                    }
+
+                                    Text {
+                                        text: qsTr("文件")
+                                        color: root.theme.textSecondary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.fontSizeBase
+                                    }
+
+                                    AppComboBox {
+                                        id: fileLevelCombo
+                                        theme: root.theme
+                                        Layout.preferredWidth: 140
+                                        model: ["Trace", "Debug", "Info", "Warn", "Error", "Critical", "Off"]
+                                        currentIndex: root.viewModel.logViewModel.fileLevel
+                                        onActivated: function(idx) {
+                                            root.viewModel.logViewModel.fileLevel = idx
+                                            if (root.toast) root.toast.show(qsTr("文件日志级别已更新"), "success")
+                                        }
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+                                }
+
+                                Text {
+                                    text: qsTr("日志目录: %1").arg(root.viewModel.logViewModel.logDirectory)
                                     color: root.theme.textSecondary
                                     font.family: root.theme.fontFamily
-                                    font.pixelSize: root.theme.fontSizeBase
+                                    font.pixelSize: root.theme.fontSizeSM
+                                    elide: Text.ElideMiddle
+                                    Layout.fillWidth: true
                                 }
                             }
-
-                            Item { Layout.fillHeight: true }
                         }
+
+                        // ── 实时日志 ──
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: root.theme.surfaceColor
+                            radius: root.theme.radiusLG
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: root.theme.spacingLG
+                                spacing: root.theme.spacingMD
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: root.theme.spacingMD
+
+                                    Text {
+                                        text: qsTr("实时日志")
+                                        color: root.theme.textPrimary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.h3Size
+                                        font.weight: root.theme.h3Weight
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+
+                                    // 过滤级别
+                                    Text {
+                                        text: qsTr("显示 ≥")
+                                        color: root.theme.textSecondary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.fontSizeSM
+                                    }
+
+                                    AppComboBox {
+                                        id: filterCombo
+                                        theme: root.theme
+                                        Layout.preferredWidth: 110
+                                        model: ["Trace", "Debug", "Info", "Warn", "Error", "Critical"]
+                                        currentIndex: root.viewModel.logViewModel.filterLevel
+                                        onActivated: function(idx) {
+                                            root.viewModel.logViewModel.filterLevel = idx
+                                        }
+                                    }
+
+                                    // 复制全部
+                                    AppButton {
+                                        text: qsTr("复制")
+                                        theme: root.theme
+                                        type: "text"
+                                        fullWidth: false
+                                        onClicked: {
+                                            root.viewModel.logViewModel.copyAll()
+                                            if (root.toast) root.toast.show(qsTr("已复制到剪贴板"), "success")
+                                        }
+                                    }
+
+                                    // 清空
+                                    AppButton {
+                                        text: qsTr("清空")
+                                        theme: root.theme
+                                        type: "text"
+                                        fullWidth: false
+                                        onClicked: root.viewModel.logViewModel.clear()
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.fillWidth: true; height: 1; color: root.theme.dividerColor
+                                }
+
+                                // 日志列表
+                                ListView {
+                                    id: logListView
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    clip: true
+                                    model: root.viewModel.logViewModel.entries
+
+                                    // 自动滚动到底部
+                                    onCountChanged: {
+                                        if (logViewAtEnd) {
+                                            Qt.callLater(function() {
+                                                logListView.positionViewAtEnd()
+                                            })
+                                        }
+                                    }
+
+                                    property bool logViewAtEnd: true
+                                    onContentYChanged: {
+                                        logViewAtEnd = (contentY + height >= contentHeight - 50)
+                                    }
+
+                                    ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                                    delegate: Rectangle {
+                                        id: logDelegate
+                                        required property var modelData
+                                        required property int index
+                                        width: logListView.width
+                                        height: logText.implicitHeight + 4
+                                        color: "transparent"
+
+                                        Text {
+                                            id: logText
+                                            anchors {
+                                                left: parent.left; right: parent.right
+                                                verticalCenter: parent.verticalCenter
+                                                margins: root.theme.spacingXS
+                                            }
+                                            text: modelData.msg || ""
+                                            color: {
+                                                var lvl = modelData.level || 0
+                                                if (lvl >= 4) return "#EF4444"  // error/critical → red
+                                                if (lvl >= 3) return "#F59E0B"  // warn → amber
+                                                if (lvl >= 2) return root.theme.textPrimary  // info
+                                                return root.theme.textSecondary   // debug/trace
+                                            }
+                                            font.family: "Consolas, 'Courier New', monospace"
+                                            font.pixelSize: root.theme.fontSizeSM
+                                            wrapMode: Text.NoWrap
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+
+                                    // 空状态
+                                    Text {
+                                        anchors.centerIn: parent
+                                        visible: logListView.count === 0
+                                        text: qsTr("暂无日志")
+                                        color: root.theme.textSecondary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.fontSizeBase
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // ── 关于 (placeholder) ──
+                    ColumnLayout {
+                        visible: root.currentCategory === 5
+                        Layout.fillWidth: true
+                        spacing: root.theme.spacingLG
+                        Text {
+                            text: qsTr("关于")
+                            color: root.theme.textPrimary; font.family: root.theme.fontFamily
+                            font.pixelSize: root.theme.h2Size; font.weight: root.theme.h2Weight
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
+                        Rectangle {
+                            Layout.fillWidth: true; implicitHeight: 100
+                            color: root.theme.surfaceColor; radius: root.theme.radiusLG
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("关于将在后续实现...")
+                                color: root.theme.textSecondary; font.family: root.theme.fontFamily
+                                font.pixelSize: root.theme.fontSizeBase
+                            }
+                        }
+                        Item { Layout.fillHeight: true }
                     }
 
                     Item { Layout.fillHeight: true }

@@ -68,7 +68,8 @@ Item {
 
             // ── 左侧：对话区 ──────────────────────────────────────────
             ColumnLayout {
-                SplitView.minimumWidth: 300
+                SplitView.minimumWidth: 800
+                Layout.preferredWidth: 1000
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 spacing: root.theme.spacingMD
@@ -248,9 +249,9 @@ Item {
 
             // ── 右侧：文件和信息面板 ────────────────────────────────────
             ColumnLayout {
-                SplitView.minimumWidth: 200
-                SplitView.maximumWidth: 500
-                Layout.preferredWidth: 280
+                SplitView.minimumWidth: 160
+                SplitView.maximumWidth: 350
+                Layout.preferredWidth: 200
                 Layout.fillHeight: true
                 spacing: root.theme.spacingMD
 
@@ -258,14 +259,14 @@ Item {
                 SoftCard {
                     theme: root.theme
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 200
-                    padding: root.theme.spacingMD
+                    Layout.preferredHeight: 180
+                    padding: root.theme.spacingSM
 
                     Text {
                         text: qsTr("📁 已上传文件")
                         color: root.theme.textPrimary
                         font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeLG
+                        font.pixelSize: root.theme.fontSizeBase
                         font.weight: root.theme.fontWeightBold
                     }
 
@@ -278,7 +279,7 @@ Item {
 
                         ColumnLayout {
                             width: parent.width
-                            spacing: root.theme.spacingSM
+                            spacing: root.theme.spacingXS
 
                             Repeater {
                                 model: uploadedFilesModel
@@ -288,18 +289,18 @@ Item {
                                     required property var modelData
 
                                     Layout.fillWidth: true
-                                    Layout.preferredHeight: 60
-                                    radius: root.theme.radiusMD
+                                    Layout.preferredHeight: 48
+                                    radius: root.theme.radiusSM
                                     color: root.theme.backgroundColor
 
                                     RowLayout {
                                         anchors.fill: parent
-                                        anchors.margins: root.theme.spacingSM
-                                        spacing: root.theme.spacingSM
+                                        anchors.margins: root.theme.spacingXS
+                                        spacing: root.theme.spacingXS
 
                                         Text {
                                             text: "📄"
-                                            font.pixelSize: 16
+                                            font.pixelSize: 14
                                         }
 
                                         ColumnLayout {
@@ -310,7 +311,7 @@ Item {
                                                 text: modelData.fileName
                                                 color: root.theme.textPrimary
                                                 font.family: root.theme.fontFamily
-                                                font.pixelSize: root.theme.fontSizeSM
+                                                font.pixelSize: root.theme.fontSizeXS
                                                 font.weight: root.theme.fontWeightSemibold
                                                 elide: Text.ElideRight
                                             }
@@ -319,14 +320,14 @@ Item {
                                                 text: modelData.fileSize + " · " + modelData.uploadTime
                                                 color: root.theme.textTertiary
                                                 font.family: root.theme.fontFamily
-                                                font.pixelSize: root.theme.fontSizeXS
+                                                font.pixelSize: root.theme.fontSizeXS - 1
                                             }
                                         }
 
                                         Text {
                                             text: "×"
                                             color: root.theme.textTertiary
-                                            font.pixelSize: 16
+                                            font.pixelSize: 14
                                             MouseArea {
                                                 anchors.fill: parent
                                                 cursorShape: Qt.PointingHandCursor
@@ -337,7 +338,7 @@ Item {
                                 }
                             }
 
-                            Item { Layout.preferredHeight: root.theme.spacingSM }
+                            Item { Layout.preferredHeight: root.theme.spacingXS }
                         }
                     }
 
@@ -349,7 +350,7 @@ Item {
                         text: qsTr("暂无文件")
                         color: root.theme.textTertiary
                         font.family: root.theme.fontFamily
-                        font.pixelSize: root.theme.fontSizeBase
+                        font.pixelSize: root.theme.fontSizeSM
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }

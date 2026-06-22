@@ -23,6 +23,10 @@ include(GitVersion)
 include(CompilerOptions)
 include(Dependencies)
 
+# ── 第三方依赖（bundled header-only）──────────────────────────────────────────
+# spdlog 位于 libs/spdlog/include，通过 core/log 模块的 INTERFACE 目标暴露
+# 无需 add_subdirectory，不产生额外编译目标
+
 add_subdirectory(src)
 
 if(IQTOOLS_BUILD_PLUGINS)

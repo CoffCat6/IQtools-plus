@@ -8,6 +8,7 @@
 
 class HomeViewModel;
 class TranslateViewModel;
+class LogViewModel;
 
 /**
  * @brief Main shell ViewModel for the application window.
@@ -60,6 +61,11 @@ class AppShellViewModel final : public QObject
                CONSTANT
                FINAL)
 
+    Q_PROPERTY(QObject* logViewModel
+               READ logViewModel
+               CONSTANT
+               FINAL)
+
 public:
     explicit AppShellViewModel(QObject* parent = nullptr);
     ~AppShellViewModel() override;
@@ -71,6 +77,7 @@ public:
     [[nodiscard]] QString pageSubtitle() const;
     [[nodiscard]] QObject* homeViewModel() const noexcept;
     [[nodiscard]] QObject* translateViewModel() const noexcept;
+    [[nodiscard]] QObject* logViewModel() const noexcept;
 
     void setCurrentPageIndex(int pageIndex);
     void setDarkMode(bool enabled);
@@ -95,4 +102,5 @@ private:
     bool m_followSystemTheme{false};
     HomeViewModel* m_homeViewModel{nullptr};
     TranslateViewModel* m_translateViewModel{nullptr};
+    LogViewModel* m_logViewModel{nullptr};
 };

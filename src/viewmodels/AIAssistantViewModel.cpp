@@ -8,6 +8,9 @@
 #include <QDateTime>
 #include <QRandomGenerator>
 
+#include "core/log/Logger.h"
+#include "core/log/LogModules.h"
+
 AIAssistantViewModel::AIAssistantViewModel(QObject* parent)
     : QObject(parent)
     , m_isLoading(false)
@@ -15,6 +18,7 @@ AIAssistantViewModel::AIAssistantViewModel(QObject* parent)
     // 初始化对话历史为空
     m_conversationHistory = QJsonArray();
     m_uploadedFiles = QJsonArray();
+    TB_LOG_INFO(LogModule::Plugin, "AIAssistantViewModel initialized");
 }
 
 QJsonArray AIAssistantViewModel::conversationHistory() const noexcept
@@ -43,6 +47,9 @@ void AIAssistantViewModel::sendMessage(const QString& message)
         return;
     }
 
+    TB_LOG_DEBUG(LogModule::Plugin, "AI sendMessage | len={} preview='{}'",
+        message.length(), message.left(50).toStdString());
+
     // 添加用户消息到历史
     QJsonObject userMessage;
     userMessage["role"] = "user";
@@ -65,10 +72,11 @@ void AIAssistantViewModel::sendMessage(const QString& message)
 void AIAssistantViewModel::uploadFile(const QString& filePath)
 {
     QFileInfo fileInfo(filePath);
-    
+
     if (!fileInfo.exists()) {
         m_lastError = "File not found: " + filePath;
         emit errorOccurred();
+        TB_LOG_WARN(LogModule::Plugin, "File upload failed: not found | path='{}'", filePath.toStdString());
         return;
     }
 
@@ -93,12 +101,17 @@ void AIAssistantViewModel::uploadFile(const QString& filePath)
     m_uploadedFiles.append(fileObj);
     emit uploadedFilesChanged();
     emit fileUploaded(fileInfo.fileName());
+
+    TB_LOG_INFO(LogModule::Plugin, "File uploaded | name='{}' size={}",
+        fileInfo.fileName().toStdString(), sizeStr.toStdString());
 }
 
 void AIAssistantViewModel::clearConversation()
 {
+    const int count = m_conversationHistory.size();
     m_conversationHistory = QJsonArray();
     emit conversationHistoryChanged();
+    TB_LOG_DEBUG(LogModule::Plugin, "Conversation cleared | removed {} messages", count);
 }
 
 void AIAssistantViewModel::removeFile(const QString& fileName)
@@ -117,6 +130,7 @@ void AIAssistantViewModel::cancelRequest()
     if (m_isLoading) {
         m_isLoading = false;
         emit isLoadingChanged();
+        TB_LOG_DEBUG(LogModule::Plugin, "AI request cancelled");
     }
 }
 
@@ -150,4 +164,6 @@ void AIAssistantViewModel::simulateAIResponse(const QString& userMessage)
     // 关闭加载状态
     m_isLoading = false;
     emit isLoadingChanged();
+
+    TB_LOG_DEBUG(LogModule::Plugin, "AI mock response generated | responseLen={}", response.length());
 }

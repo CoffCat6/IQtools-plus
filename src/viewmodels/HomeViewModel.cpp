@@ -3,6 +3,9 @@
 #include <QDateTime>
 #include <QLocale>
 
+#include "core/log/Logger.h"
+#include "core/log/LogModules.h"
+
 HomeViewModel::HomeViewModel(QObject* parent) : QObject(parent) {
   m_welcomeMessage = generateWelcomeMessage();
 
@@ -23,6 +26,8 @@ HomeViewModel::HomeViewModel(QObject* parent) : QObject(parent) {
 
   connect(&m_timer, &QTimer::timeout, this, &HomeViewModel::updateDateTime);
   m_timer.start(1000);
+
+  TB_LOG_INFO(LogModule::App, "HomeViewModel initialized | version={}", m_appVersion.toStdString());
 }
 
 void HomeViewModel::updateDateTime() {
@@ -92,6 +97,8 @@ void HomeViewModel::refreshWeather(const QString& city) {
   m_weatherText = tr("天气数据待接入");
   m_weatherTemperature = QStringLiteral("--\u00B0C");
   emit weatherChanged();
+
+  TB_LOG_DEBUG(LogModule::Network, "Weather refresh requested | city='{}'", city.toStdString());
 }
 
 QString HomeViewModel::generateWelcomeMessage() const {

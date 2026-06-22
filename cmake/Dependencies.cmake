@@ -23,9 +23,13 @@ endif()
 
 find_package(spdlog CONFIG QUIET)
 if(spdlog_FOUND)
-    message(STATUS "spdlog found.")
+    message(STATUS "spdlog found via system/vcpkg.")
 else()
-    message(STATUS "spdlog not found. Core logging target remains as a placeholder.")
+    # 回退：使用 libs/spdlog（header-only，仅含 include/）
+    # 由 core/log 模块直接暴露 include 路径，无需 add_subdirectory
+    message(STATUS "spdlog not found via find_package; using bundled libs/spdlog (header-only).")
+    set(spdlog_FOUND TRUE)
+    set(IQTOOLS_SPDLOG_BUNDLED TRUE)
 endif()
 
 find_package(OpenCV CONFIG QUIET)

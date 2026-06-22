@@ -1,26 +1,30 @@
 // src/viewmodels/AppShellViewModel.cpp
 #include "viewmodels/AppShellViewModel.h"
 
-#include <QDebug>
 #include <QSettings>
 #include <QStyleHints>
 #include <QGuiApplication>
 
+#include "core/log/Logger.h"
+#include "core/log/LogModules.h"
 #include "viewmodels/HomeViewModel.h"
 #include "viewmodels/TranslateViewModel.h"
+#include "viewmodels/LogViewModel.h"
 
 AppShellViewModel::AppShellViewModel(QObject* parent)
     : QObject(parent),
       m_homeViewModel(new HomeViewModel(this)),
-      m_translateViewModel(new TranslateViewModel(this)) {
+      m_translateViewModel(new TranslateViewModel(this)),
+      m_logViewModel(new LogViewModel(this)) {
   loadSettings();
-  qInfo() << "[AppShellViewModel] Created | darkMode:" << m_darkMode
-          << "followSystem:" << m_followSystemTheme;
+  TB_LOG_INFO(LogModule::App,
+      "AppShellViewModel created | darkMode={} followSystem={}",
+      m_darkMode, m_followSystemTheme);
 }
 
 AppShellViewModel::~AppShellViewModel() {
   saveSettings();
-  qInfo() << "[AppShellViewModel] Destroyed";
+  TB_LOG_DEBUG(LogModule::App, "AppShellViewModel destroyed");
 }
 
 int AppShellViewModel::currentPageIndex() const noexcept {
@@ -83,9 +87,13 @@ QObject* AppShellViewModel::translateViewModel() const noexcept {
   return m_translateViewModel;
 }
 
+QObject* AppShellViewModel::logViewModel() const noexcept {
+  return m_logViewModel;
+}
+
 void AppShellViewModel::setCurrentPageIndex(int pageIndex) {
   if (pageIndex < 0 || pageIndex > 6) {
-    qWarning() << "[AppShellViewModel] Invalid page index:" << pageIndex;
+    TB_LOG_WARN(LogModule::App, "Invalid page index={}", pageIndex);
     return;
   }
 
@@ -96,8 +104,7 @@ void AppShellViewModel::setCurrentPageIndex(int pageIndex) {
   m_currentPageIndex = pageIndex;
   emit currentPageIndexChanged();
 
-  qInfo() << "[AppShellViewModel] Switched page to index ="
-          << m_currentPageIndex;
+  TB_LOG_INFO(LogModule::App, "Page switched to index={}", m_currentPageIndex);
 }
 
 void AppShellViewModel::setDarkMode(bool enabled) {
@@ -109,7 +116,7 @@ void AppShellViewModel::setDarkMode(bool enabled) {
   emit darkModeChanged();
   saveSettings();
 
-  qInfo() << "[AppShellViewModel] Dark mode changed:" << m_darkMode;
+  TB_LOG_INFO(LogModule::App, "Dark mode changed to={}", m_darkMode);
 }
 
 void AppShellViewModel::setFollowSystemTheme(bool enabled) {
@@ -131,7 +138,7 @@ void AppShellViewModel::setFollowSystemTheme(bool enabled) {
   }
 
   saveSettings();
-  qInfo() << "[AppShellViewModel] Follow system theme:" << m_followSystemTheme;
+  TB_LOG_INFO(LogModule::App, "Follow system theme set to={}", m_followSystemTheme);
 }
 
 void AppShellViewModel::toggleDarkMode() noexcept {
