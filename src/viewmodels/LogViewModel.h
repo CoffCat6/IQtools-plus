@@ -10,6 +10,12 @@
 #include <QMutex>
 #include <QTimer>
 
+#include <memory>
+
+namespace spdlog::sinks {
+    class sink;
+}
+
 /**
  * @brief 日志面板 ViewModel
  *
@@ -40,7 +46,7 @@ class LogViewModel final : public QObject {
 
 public:
     explicit LogViewModel(QObject* parent = nullptr);
-    ~LogViewModel() override = default;
+    ~LogViewModel() override;
 
     [[nodiscard]] QJsonArray entries() const;
     [[nodiscard]] int filterLevel() const noexcept;
@@ -81,6 +87,9 @@ private:
     QString m_logDirectory;
 
     QTimer m_flushTimer;
+
+    // 保存回调 sink 引用，析构时从 Logger 移除，避免悬空指针
+    std::shared_ptr<spdlog::sinks::sink> m_callbackSink;
 
     static constexpr int kMaxEntries = 500;  // 环形缓冲区上限
 };

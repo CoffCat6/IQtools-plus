@@ -8,7 +8,10 @@
 
 class HomeViewModel;
 class TranslateViewModel;
+class AIAssistantViewModel;
 class LogViewModel;
+class SettingViewModel;
+class AppContext;
 
 /**
  * @brief Main shell ViewModel for the application window.
@@ -61,14 +64,31 @@ class AppShellViewModel final : public QObject
                CONSTANT
                FINAL)
 
+    Q_PROPERTY(QObject* aiAssistantViewModel
+               READ aiAssistantViewModel
+               CONSTANT
+               FINAL)
+
     Q_PROPERTY(QObject* logViewModel
                READ logViewModel
                CONSTANT
                FINAL)
 
+    Q_PROPERTY(QObject* settingViewModel
+               READ settingViewModel
+               CONSTANT
+               FINAL)
+
+    /// 总页面数（供首页统计展示）
+    Q_PROPERTY(int pageCount READ pageCount CONSTANT FINAL)
+
 public:
     explicit AppShellViewModel(QObject* parent = nullptr);
     ~AppShellViewModel() override;
+
+    /// 注入应用上下文，将服务分发给子 ViewModel
+    /// 在构造后、QML 引擎加载前调用
+    void setAppContext(AppContext* ctx);
 
     [[nodiscard]] int currentPageIndex() const noexcept;
     [[nodiscard]] bool darkMode() const noexcept;
@@ -77,7 +97,10 @@ public:
     [[nodiscard]] QString pageSubtitle() const;
     [[nodiscard]] QObject* homeViewModel() const noexcept;
     [[nodiscard]] QObject* translateViewModel() const noexcept;
+    [[nodiscard]] QObject* aiAssistantViewModel() const noexcept;
     [[nodiscard]] QObject* logViewModel() const noexcept;
+    [[nodiscard]] QObject* settingViewModel() const noexcept;
+    [[nodiscard]] int pageCount() const noexcept;
 
     void setCurrentPageIndex(int pageIndex);
     void setDarkMode(bool enabled);
@@ -93,14 +116,16 @@ signals:
     void followSystemThemeChanged();
 
 private:
-    void saveSettings();
-    void loadSettings();
     void syncDarkModeFromSystem();
+
+    static constexpr int kPageCount = 7;
 
     int m_currentPageIndex{0};
     bool m_darkMode{false};
     bool m_followSystemTheme{false};
     HomeViewModel* m_homeViewModel{nullptr};
     TranslateViewModel* m_translateViewModel{nullptr};
+    AIAssistantViewModel* m_aiAssistantViewModel{nullptr};
     LogViewModel* m_logViewModel{nullptr};
+    SettingViewModel* m_settingViewModel{nullptr};
 };

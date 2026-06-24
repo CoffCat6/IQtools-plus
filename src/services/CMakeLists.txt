@@ -3,6 +3,7 @@ add_subdirectory(screenshot)
 add_subdirectory(translate)
 add_subdirectory(clipboard)
 add_subdirectory(hotkey)
+add_subdirectory(ai)
 
 add_library(iqtools_services INTERFACE)
 
@@ -17,4 +18,5 @@ target_link_libraries(iqtools_services
         iqtools_service_translate
         iqtools_service_clipboard
         iqtools_service_hotkey
+        iqtools_service_ai
 )

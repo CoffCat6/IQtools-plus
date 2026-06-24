@@ -4,10 +4,17 @@
 #include <QQmlContext>
 #include <QQuickStyle>
 #include <QIcon>
+#include <QStandardPaths>
 
 #include "core/log/Logger.h"
 #include "core/log/LogModules.h"
+#include "core/config/ConfigManager.h"
 #include "viewmodels/AppShellViewModel.h"
+#include "app/AppContext.h"
+#include "services/translate/ITranslateService.h"
+#include "services/translate/MockTranslateService.h"
+#include "services/ai/IAIService.h"
+#include "services/ai/MockAIService.h"
 
 // ── QML 日志桥接：将 Qt 消息（console.log/warn/error）转发到 spdlog ────────
 static void qtMessageHandler(QtMsgType type,
@@ -77,7 +84,31 @@ int main(int argc, char* argv[])
     // ── QML 引擎 ────────────────────────────────────────────────────────────
     QQmlApplicationEngine engine;
 
+    // ── 依赖注入：创建应用上下文并注册服务 ─────────────────────────────────
+    AppContext appContext;
+
+    // 配置管理器
+    const QString configDir = QStandardPaths::writableLocation(
+        QStandardPaths::AppConfigLocation);
+    auto configManager = std::make_shared<ConfigManager>(
+        configDir + QStringLiteral("/config.json"));
+    if (auto loadResult = configManager->load(); loadResult.isErr()) {
+        TB_LOG_WARN(LogModule::App,
+            "Failed to load config | error={}",
+            loadResult.error().message);
+    }
+    appContext.registerService<ConfigManager>(configManager);
+
+    // 翻译服务：当前阶段使用 Mock 实现
+    appContext.registerService<ITranslateService>(
+        std::make_shared<MockTranslateService>());
+    // AI 服务：当前阶段使用 Mock 实现
+    appContext.registerService<IAIService>(
+        std::make_shared<MockAIService>());
+    TB_LOG_INFO(LogModule::App, "Services registered in AppContext (Config + Translate + AI)");
+
     AppShellViewModel appShellViewModel;
+    appShellViewModel.setAppContext(&appContext);
 
     engine.setInitialProperties({
         {QStringLiteral("viewModel"),

@@ -135,13 +135,8 @@ ApplicationWindow {
                                 viewModel: root.viewModel.homeViewModel
                                 navigateTo: function(index) {
                                     root.previousPageIndex = root.viewModel.currentPageIndex
-                                    // 转换索引：AI助手已移到第二位
-                                    var newIndex = index
-                                    if (index === 1) newIndex = 1  // 翻译原本是1，现在变成2
-                                    else if (index === 2) newIndex = 3  // 剪贴板原本是2，现在变成3
-                                    else if (index === 3) newIndex = 4  // 截图原本是3，现在变成4
-                                    else if (index === 4) newIndex = 5  // 待办原本是4，现在变成5
-                                    root.viewModel.navigateTo(newIndex)
+                                    // 直接使用正确的页面索引，无需映射
+                                    root.viewModel.navigateTo(index)
                                 }
                                 // Fade in/out
                                 opacity: pageStack.currentIndex === 0 ? 1 : 0
@@ -153,6 +148,7 @@ ApplicationWindow {
                             AIAssistantPage {
                                 id: aiAssistantPage
                                 theme: theme
+                                viewModel: root.viewModel.aiAssistantViewModel
                                 toast: appToast
                                 opacity: pageStack.currentIndex === 1 ? 1 : 0
                                 Behavior on opacity {

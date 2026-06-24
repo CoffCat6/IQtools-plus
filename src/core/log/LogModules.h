@@ -28,5 +28,6 @@ constexpr std::string_view Network    = "network";
 constexpr std::string_view Hotkey     = "hotkey";
 constexpr std::string_view Config     = "config";
 constexpr std::string_view UI         = "ui";
+constexpr std::string_view AI         = "ai";
 
 }  // namespace LogModule

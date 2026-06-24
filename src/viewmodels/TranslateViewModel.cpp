@@ -3,13 +3,42 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
-#include <QTimer>
 
 #include "core/log/Logger.h"
 #include "core/log/LogModules.h"
+#include "services/translate/MockTranslateService.h"
 
 TranslateViewModel::TranslateViewModel(QObject* parent) : QObject(parent) {
-  TB_LOG_INFO(LogModule::Translate, "TranslateViewModel initialized (mock engine)");
+  TB_LOG_INFO(LogModule::Translate, "TranslateViewModel initialized");
+}
+
+void TranslateViewModel::injectService(ITranslateService::Ptr service) {
+  m_service = std::move(service);
+
+  // 从服务同步当前引擎和语言列表
+  if (m_service) {
+    m_currentEngine = m_service->currentEngine();
+    emit currentEngineChanged();
+    emit supportedLanguagesChanged();
+    emit availableEnginesChanged();
+  }
+
+  TB_LOG_DEBUG(LogModule::Translate, "Service injected | engine='{}'",
+      m_currentEngine.toStdString());
+}
+
+ITranslateService::Ptr TranslateViewModel::ensureService() {
+  if (!m_service) {
+    // 注意：不传 parent，由 shared_ptr 管理生命周期，避免 Qt 父子机制 + shared_ptr 双重释放
+    m_service = std::make_shared<MockTranslateService>();
+    m_currentEngine = m_service->currentEngine();
+    emit currentEngineChanged();
+    emit supportedLanguagesChanged();
+    emit availableEnginesChanged();
+    TB_LOG_DEBUG(LogModule::Translate,
+        "Lazy-created MockTranslateService (no injection)");
+  }
+  return m_service;
 }
 
 QString TranslateViewModel::sourceText() const noexcept { return m_sourceText; }
@@ -22,9 +51,13 @@ QString TranslateViewModel::fromLanguage() const noexcept {
   return m_fromLanguage;
 }
 
-QString TranslateViewModel::toLanguage() const noexcept { return m_toLanguage; }
+QString TranslateViewModel::toLanguage() const noexcept {
+  return m_toLanguage;
+}
 
 QStringList TranslateViewModel::supportedLanguages() const {
+  if (m_service) return m_service->supportedLanguages();
+  // 回退默认列表（与 MockTranslateService 一致）
   return {QStringLiteral("auto"), QStringLiteral("zh-CN"), QStringLiteral("en"),
           QStringLiteral("ja"), QStringLiteral("ko")};
 }
@@ -34,6 +67,13 @@ QString TranslateViewModel::currentEngine() const noexcept {
 }
 
 QStringList TranslateViewModel::availableEngines() const {
+  if (m_service) {
+    QStringList engines;
+    for (const auto& info : m_service->availableEngines()) {
+      engines.append(info.id);
+    }
+    return engines;
+  }
   return {QStringLiteral("mock-local")};
 }
 
@@ -82,6 +122,10 @@ void TranslateViewModel::setCurrentEngine(const QString& engineId) {
   }
 
   m_currentEngine = engineId;
+
+  auto svc = ensureService();
+  svc->setCurrentEngine(engineId);
+
   emit currentEngineChanged();
 }
 
@@ -96,31 +140,41 @@ void TranslateViewModel::translate() {
   setErrorMessage(QString());
   setTranslating(true);
 
-  QElapsedTimer timer;
-  timer.start();
+  TranslateRequest request;
+  request.text     = trimmed;
+  request.fromLang = m_fromLanguage;
+  request.toLang   = m_toLanguage;
+  request.engineId = m_currentEngine;
 
-  // NOTE:
-  // 当前为 UI 骨架阶段，先用 mock 结果联调界面。
-  // 下一轮接入真实 TranslateService 时，这里替换为
-  // service->translateAsync(...)。
-  QTimer::singleShot(
-      280, this, [this, trimmed, elapsed = timer.elapsed()]() mutable {
-        const qint64 actualElapsed = elapsed + 280;
+  auto svc = ensureService();
 
-        const QString mockResult =
-            tr("[Mock Translation]\nEngine: %1\nFrom: %2\nTo: %3\n\n%4")
-                .arg(m_currentEngine, m_fromLanguage, m_toLanguage, trimmed);
+  // 捕获 raw 指针用于回判断 ViewModel 是否仍然存活
+  // （QTimer 延迟回调期间 ViewModel 可能被销毁）
+  svc->translateAsync(request, [this](Result<TranslateResult> result) {
+    // 异步回调：确保通过 QueuedConnection 在主线程执行
+    // MockTranslateService 使用 QTimer::singleShot，已在主线程
+    if (result.isErr()) {
+      setTranslating(false);
+      const QString reason = QString::fromStdString(result.error().message);
+      setErrorMessage(reason);
+      emit translateFailed(reason);
+      TB_LOG_WARN(LogModule::Translate, "Translate failed: {}",
+          result.error().message);
+      return;
+    }
 
-        setResultText(mockResult);
-        setLatencyInfo(tr("%1 ms").arg(actualElapsed));
-        setCacheHitRate(0.0);
-        setTranslating(false);
+    const auto& data = result.value();
+    setResultText(data.translatedText);
+    setLatencyInfo(tr("%1 ms").arg(data.latencyMs));
+    setCacheHitRate(data.cacheHit ? 1.0 : 0.0);
+    setTranslating(false);
 
-        emit translateSucceeded(m_resultText);
+    emit translateSucceeded(m_resultText);
 
-        TB_LOG_INFO(LogModule::Translate, "Mock translation done in {}ms | engine={} from={} to={}",
-            actualElapsed, m_currentEngine, m_fromLanguage, m_toLanguage);
-      });
+    TB_LOG_INFO(LogModule::Translate,
+        "Translation succeeded | engine={} latency={}ms cacheHit={}",
+        data.engineId.toStdString(), data.latencyMs, data.cacheHit);
+  });
 }
 
 void TranslateViewModel::clear() {

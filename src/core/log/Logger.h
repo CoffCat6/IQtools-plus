@@ -123,6 +123,10 @@ public:
     using LogCallback = std::function<void(const std::string& formattedMsg, int level)>;
     static std::shared_ptr<spdlog::sinks::sink> addCallbackSink(LogCallback callback);
 
+    /// 移除之前注册的回调 sink，从所有模块 logger 和全局 sink 列表中摘除。
+    /// 用于 ViewModel 析构时安全释放回调引用，避免悬空指针。
+    static void removeCallbackSink(std::shared_ptr<spdlog::sinks::sink> sink);
+
 private:
     Logger() = delete;
 };

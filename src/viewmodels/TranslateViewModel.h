@@ -7,13 +7,16 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <memory>
+
+#include "services/translate/ITranslateService.h"
 
 /**
  * @brief Translate page ViewModel.
  * 中文说明：
- * - 当前阶段为 UI 骨架版 ViewModel
- * - 属性与未来真实服务接口保持兼容
- * - 底层先使用 mock 逻辑，便于主界面联调
+ * - 通过注入的 ITranslateService 执行翻译，不包含业务逻辑
+ * - 属性与底层服务接口保持兼容
+ * - 若未注入服务，延迟创建 MockTranslateService（兼容 QML_ELEMENT / 测试）
  */
 class TranslateViewModel final : public QObject {
   Q_OBJECT
@@ -33,12 +36,14 @@ class TranslateViewModel final : public QObject {
                  toLanguageChanged FINAL)
 
   Q_PROPERTY(
-      QStringList supportedLanguages READ supportedLanguages CONSTANT FINAL)
+      QStringList supportedLanguages READ supportedLanguages NOTIFY
+          supportedLanguagesChanged FINAL)
 
   Q_PROPERTY(QString currentEngine READ currentEngine WRITE setCurrentEngine
                  NOTIFY currentEngineChanged FINAL)
 
-  Q_PROPERTY(QStringList availableEngines READ availableEngines CONSTANT FINAL)
+  Q_PROPERTY(QStringList availableEngines READ availableEngines NOTIFY
+                 availableEnginesChanged FINAL)
 
   Q_PROPERTY(
       QString errorMessage READ errorMessage NOTIFY errorMessageChanged FINAL)
@@ -52,6 +57,10 @@ class TranslateViewModel final : public QObject {
  public:
   explicit TranslateViewModel(QObject* parent = nullptr);
   ~TranslateViewModel() override = default;
+
+  /// 注入翻译服务（由 AppShellViewModel 在构造后调用）
+  /// 若不注入，translate() 时延迟创建 MockTranslateService
+  void injectService(ITranslateService::Ptr service);
 
   [[nodiscard]] QString sourceText() const noexcept;
   [[nodiscard]] QString resultText() const noexcept;
@@ -82,7 +91,9 @@ class TranslateViewModel final : public QObject {
   void translatingChanged();
   void fromLanguageChanged();
   void toLanguageChanged();
+  void supportedLanguagesChanged();
   void currentEngineChanged();
+  void availableEnginesChanged();
   void errorMessageChanged();
   void latencyInfoChanged();
   void cacheHitRateChanged();
@@ -97,11 +108,15 @@ class TranslateViewModel final : public QObject {
   void setLatencyInfo(const QString& info);
   void setCacheHitRate(double value);
 
+  /// 确保服务可用：若未注入则延迟创建 MockTranslateService
+  [[nodiscard]] ITranslateService::Ptr ensureService();
+
+  ITranslateService::Ptr m_service;
   QString m_sourceText;
   QString m_resultText;
   QString m_fromLanguage{QStringLiteral("auto")};
   QString m_toLanguage{QStringLiteral("zh-CN")};
-  QString m_currentEngine{QStringLiteral("mock-local")};
+  QString m_currentEngine;
   QString m_errorMessage;
   QString m_latencyInfo{QStringLiteral("-- ms")};
   bool m_translating{false};

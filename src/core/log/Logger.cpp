@@ -23,8 +23,12 @@
 
 namespace {
 
-// 所有模块 logger 共享的 sink 列表（console + file）
+// 所有模块 logger 共享的 sink 列表（console + file + callback sinks）
 std::vector<spdlog::sink_ptr> g_sinks;
+
+// 命名指针：避免用数组索引假设 sink 顺序
+spdlog::sink_ptr g_consoleSink;
+spdlog::sink_ptr g_fileSink;
 
 // 模块 logger 缓存（懒初始化）
 std::mutex g_loggersMutex;
@@ -102,26 +106,26 @@ void Logger::init(const LoggerConfig& config) {
 
         // ── 控制台 sink（彩色，MT 安全）───────────────────────────────────
         if (config.consoleOutput) {
-            auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            consoleSink->set_level(config.consoleLevel);
+            g_consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            g_consoleSink->set_level(config.consoleLevel);
             // 格式：[HH:MM:SS.mmm] [LEVEL] [module] message（控制台不显示源位置）
-            consoleSink->set_pattern("[%H:%M:%S.%e] [%^%l%$] [%n] %v");
-            g_sinks.push_back(std::move(consoleSink));
+            g_consoleSink->set_pattern("[%H:%M:%S.%e] [%^%l%$] [%n] %v");
+            g_sinks.push_back(g_consoleSink);
         }
 
         // ── 滚动文件 sink（MT 安全）───────────────────────────────────────
         {
             const std::string filename =
                 logDir + "/" + resolveDatePattern(config.filePattern);
-            auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+            g_fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
                 filename,
                 config.maxFileSize,
                 config.maxFiles,
                 /*rotate_on_open=*/false);
-            fileSink->set_level(config.fileLevel);
+            g_fileSink->set_level(config.fileLevel);
             // 文件格式：自定义 JSON Lines formatter，保证输出合法 JSON
-            fileSink->set_formatter(std::make_unique<iqtools::JsonLineFormatter>());
-            g_sinks.push_back(std::move(fileSink));
+            g_fileSink->set_formatter(std::make_unique<iqtools::JsonLineFormatter>());
+            g_sinks.push_back(g_fileSink);
         }
 
         // ── 创建全局（app）logger ──────────────────────────────────────────
@@ -163,6 +167,8 @@ void Logger::shutdown() {
     std::lock_guard<std::mutex> lock(g_loggersMutex);
     g_loggers.clear();
     g_sinks.clear();
+    g_consoleSink.reset();
+    g_fileSink.reset();
     g_globalLogger.reset();
     g_initialized = false;
 }
@@ -213,20 +219,15 @@ std::string Logger::logDir() {
 
 void Logger::setConsoleLevel(spdlog::level::level_enum level) {
     std::lock_guard<std::mutex> lock(g_loggersMutex);
-    if (g_sinks.size() > 0) {
-        // 控制台 sink 始终是第一个（如果启用了的话）
-        g_sinks[0]->set_level(level);
+    if (g_consoleSink) {
+        g_consoleSink->set_level(level);
     }
 }
 
 void Logger::setFileLevel(spdlog::level::level_enum level) {
     std::lock_guard<std::mutex> lock(g_loggersMutex);
-    if (g_sinks.size() > 1) {
-        // 文件 sink 是第二个
-        g_sinks[1]->set_level(level);
-    } else if (g_sinks.size() == 1) {
-        // 没有控制台 sink 时，文件 sink 是第一个
-        g_sinks[0]->set_level(level);
+    if (g_fileSink) {
+        g_fileSink->set_level(level);
     }
 }
 
@@ -255,4 +256,25 @@ std::shared_ptr<spdlog::sinks::sink> Logger::addCallbackSink(LogCallback callbac
     g_sinks.push_back(cbSink);
 
     return cbSink;
+}
+
+void Logger::removeCallbackSink(std::shared_ptr<spdlog::sinks::sink> sink) {
+    if (!sink) return;
+
+    std::lock_guard<std::mutex> lock(g_loggersMutex);
+
+    // 从 g_sinks 中移除
+    std::erase(g_sinks, sink);
+
+    // 从所有模块 logger 的 sink 列表中移除
+    for (auto& [name, logger] : g_loggers) {
+        auto& sinks = logger->sinks();
+        std::erase(sinks, sink);
+    }
+
+    // 从全局 logger 中移除
+    if (g_globalLogger) {
+        auto& sinks = g_globalLogger->sinks();
+        std::erase(sinks, sink);
+    }
 }

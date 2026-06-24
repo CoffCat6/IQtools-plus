@@ -6,6 +6,7 @@ add_library(iqtools_viewmodels STATIC
     HomeViewModel.cpp
     AIAssistantViewModel.cpp
     LogViewModel.cpp
+    SettingViewModel.cpp
 )
 
 target_sources(iqtools_viewmodels
@@ -18,6 +19,7 @@ target_sources(iqtools_viewmodels
             ${PROJECT_SOURCE_DIR}/src/viewmodels/HomeViewModel.h
             ${PROJECT_SOURCE_DIR}/src/viewmodels/AIAssistantViewModel.h
             ${PROJECT_SOURCE_DIR}/src/viewmodels/LogViewModel.h
+            ${PROJECT_SOURCE_DIR}/src/viewmodels/SettingViewModel.h
 )
 
 target_include_directories(iqtools_viewmodels

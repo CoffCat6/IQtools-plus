@@ -16,7 +16,7 @@ LogViewModel::LogViewModel(QObject* parent)
     m_logDirectory = QString::fromStdString(Logger::logDir());
 
     // 注册回调 sink，接收所有模块的日志
-    Logger::addCallbackSink(
+    m_callbackSink = Logger::addCallbackSink(
         [this](const std::string& msg, int level) {
             onLogReceived(msg, level);
         });
@@ -26,6 +26,14 @@ LogViewModel::LogViewModel(QObject* parent)
     m_flushTimer.start(50);
 
     TB_LOG_INFO(LogModule::UI, "LogViewModel initialized | logDir='{}'", m_logDirectory.toStdString());
+}
+
+LogViewModel::~LogViewModel() {
+    // 从 Logger 安全移除回调 sink，防止 spdlog 线程回调悬空 this 指针
+    if (m_callbackSink) {
+        Logger::removeCallbackSink(m_callbackSink);
+        m_callbackSink.reset();
+    }
 }
 
 QJsonArray LogViewModel::entries() const {

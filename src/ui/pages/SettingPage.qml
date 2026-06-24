@@ -203,11 +203,11 @@ AppPage {
                                         Rectangle {
                                             width: 20; height: 20; radius: 10
                                             border.width: 2
-                                            border.color: root.theme.isDark ? root.theme.dividerColor : root.theme.primaryColor
+                                            border.color: root.viewModel.settingViewModel.themeMode === 0 ? root.theme.primaryColor : root.theme.dividerColor
                                             color: "transparent"
 
                                             Rectangle {
-                                                visible: !root.theme.isDark
+                                                visible: root.viewModel.settingViewModel.themeMode === 0
                                                 width: 12; height: 12; radius: 6
                                                 anchors.centerIn: parent
                                                 color: root.theme.primaryColor
@@ -217,7 +217,7 @@ AppPage {
                                                 anchors.fill: parent
                                                 cursorShape: Qt.PointingHandCursor
                                                 onClicked: {
-                                                    root.viewModel.setDarkMode(false)
+                                                    root.viewModel.settingViewModel.themeMode = 0
                                                     if (root.toast) root.toast.show(qsTr("已切换到浅色模式"), "success")
                                                 }
                                             }
@@ -240,11 +240,11 @@ AppPage {
                                         Rectangle {
                                             width: 20; height: 20; radius: 10
                                             border.width: 2
-                                            border.color: root.theme.isDark ? root.theme.primaryColor : root.theme.dividerColor
+                                            border.color: root.viewModel.settingViewModel.themeMode === 1 ? root.theme.primaryColor : root.theme.dividerColor
                                             color: "transparent"
 
                                             Rectangle {
-                                                visible: root.theme.isDark
+                                                visible: root.viewModel.settingViewModel.themeMode === 1
                                                 width: 12; height: 12; radius: 6
                                                 anchors.centerIn: parent
                                                 color: root.theme.primaryColor
@@ -254,7 +254,7 @@ AppPage {
                                                 anchors.fill: parent
                                                 cursorShape: Qt.PointingHandCursor
                                                 onClicked: {
-                                                    root.viewModel.setDarkMode(true)
+                                                    root.viewModel.settingViewModel.themeMode = 1
                                                     if (root.toast) root.toast.show(qsTr("已切换到暗黑模式"), "success")
                                                 }
                                             }
@@ -277,11 +277,11 @@ AppPage {
                                         Rectangle {
                                             width: 20; height: 20; radius: 10
                                             border.width: 2
-                                            border.color: root.viewModel.followSystemTheme ? root.theme.primaryColor : root.theme.dividerColor
+                                            border.color: root.viewModel.settingViewModel.themeMode === 2 ? root.theme.primaryColor : root.theme.dividerColor
                                             color: "transparent"
 
                                             Rectangle {
-                                                visible: root.viewModel.followSystemTheme
+                                                visible: root.viewModel.settingViewModel.themeMode === 2
                                                 width: 12; height: 12; radius: 6
                                                 anchors.centerIn: parent
                                                 color: root.theme.primaryColor
@@ -291,7 +291,7 @@ AppPage {
                                                 anchors.fill: parent
                                                 cursorShape: Qt.PointingHandCursor
                                                 onClicked: {
-                                                    root.viewModel.setFollowSystemTheme(true)
+                                                    root.viewModel.settingViewModel.themeMode = 2
                                                     if (root.toast) root.toast.show(qsTr("已切换为跟随系统主题"), "success")
                                                 }
                                             }
@@ -347,9 +347,22 @@ AppPage {
                                     AppComboBox {
                                         theme: root.theme
                                         Layout.preferredWidth: 180
-                                        model: [qsTr("简体中文"), qsTr("English"), qsTr("日本語"), qsTr("한국어")]
-                                        currentIndex: 0
+                                        model: [
+                                            { text: qsTr("简体中文"), value: "zh_CN" },
+                                            { text: qsTr("English"), value: "en_US" },
+                                            { text: qsTr("日本語"), value: "ja_JP" },
+                                            { text: qsTr("한국어"), value: "ko_KR" }
+                                        ]
+                                        displayField: "text"
+                                        currentIndex: {
+                                            const lang = root.viewModel.settingViewModel.language
+                                            for (let i = 0; i < model.length; ++i) {
+                                                if (model[i].value === lang) return i
+                                            }
+                                            return 0
+                                        }
                                         onActivated: function(index) {
+                                            root.viewModel.settingViewModel.language = model[index].value
                                             if (root.toast) root.toast.show(qsTr("语言设置将在重启后生效"), "info")
                                         }
                                     }
@@ -384,7 +397,7 @@ AppPage {
                         Item { Layout.fillHeight: true }
                     }
 
-                    // ── 翻译设置 (placeholder) ──
+                    // ── 翻译设置 ──
                     ColumnLayout {
                         visible: root.currentCategory === 2
                         Layout.fillWidth: true
@@ -396,13 +409,52 @@ AppPage {
                         }
                         Rectangle { Layout.fillWidth: true; height: 1; color: root.theme.dividerColor }
                         Rectangle {
-                            Layout.fillWidth: true; implicitHeight: 100
+                            Layout.fillWidth: true
+                            implicitHeight: translateContent.implicitHeight + root.theme.spacingLG * 2
                             color: root.theme.surfaceColor; radius: root.theme.radiusLG
-                            Text {
-                                anchors.centerIn: parent
-                                text: qsTr("翻译设置将在后续实现...")
-                                color: root.theme.textSecondary; font.family: root.theme.fontFamily
-                                font.pixelSize: root.theme.fontSizeBase
+
+                            ColumnLayout {
+                                id: translateContent
+                                anchors {
+                                    left: parent.left; right: parent.right
+                                    top: parent.top; margins: root.theme.spacingLG
+                                }
+                                spacing: root.theme.spacingLG
+
+                                Text {
+                                    text: qsTr("翻译引擎")
+                                    color: root.theme.textPrimary
+                                    font.family: root.theme.fontFamily
+                                    font.pixelSize: root.theme.h3Size
+                                    font.weight: root.theme.h3Weight
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: root.theme.spacingMD
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: qsTr("默认引擎")
+                                        color: root.theme.textSecondary
+                                        font.family: root.theme.fontFamily
+                                        font.pixelSize: root.theme.fontSizeBase
+                                    }
+
+                                    AppComboBox {
+                                        theme: root.theme
+                                        Layout.preferredWidth: 180
+                                        model: root.viewModel.settingViewModel.availableEngines
+                                        currentIndex: {
+                                            const idx = model.indexOf(root.viewModel.settingViewModel.translateEngine)
+                                            return idx >= 0 ? idx : 0
+                                        }
+                                        onActivated: function(index) {
+                                            root.viewModel.settingViewModel.translateEngine = model[index]
+                                            if (root.toast) root.toast.show(qsTr("默认翻译引擎已更新"), "success")
+                                        }
+                                    }
+                                }
                             }
                         }
                         Item { Layout.fillHeight: true }

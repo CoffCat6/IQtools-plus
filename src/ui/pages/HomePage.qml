@@ -99,13 +99,13 @@ Item {
                             onTextChanged: { root.searchQuery = text }
                             onAccepted: {
                                 if (matchesQuery(qsTr("翻译"), qsTr("多引擎翻译")))
-                                    root.navigateTo(1)
-                                else if (matchesQuery(qsTr("剪贴板"), qsTr("历史记录")))
                                     root.navigateTo(2)
-                                else if (matchesQuery(qsTr("截图"), qsTr("区域截图")))
+                                else if (matchesQuery(qsTr("剪贴板"), qsTr("历史记录")))
                                     root.navigateTo(3)
-                                else if (matchesQuery(qsTr("待办"), qsTr("任务管理")))
+                                else if (matchesQuery(qsTr("截图"), qsTr("区域截图")))
                                     root.navigateTo(4)
+                                else if (matchesQuery(qsTr("待办"), qsTr("任务管理")))
+                                    root.navigateTo(5)
                             }
                         }
 
@@ -154,7 +154,7 @@ Item {
                         title: qsTr("翻译")
                         description: qsTr("多引擎翻译、语言切换")
                         visible: root.matchesQuery(title, description)
-                        onClicked: root.navigateTo(1)
+                        onClicked: root.navigateTo(2)
                     }
                     ShortcutCard {
                         theme: root.theme
@@ -163,7 +163,7 @@ Item {
                         title: qsTr("剪贴板")
                         description: qsTr("历史记录、搜索过滤")
                         visible: root.matchesQuery(title, description)
-                        onClicked: root.navigateTo(2)
+                        onClicked: root.navigateTo(3)
                     }
                     ShortcutCard {
                         theme: root.theme
@@ -172,7 +172,7 @@ Item {
                         title: qsTr("截图")
                         description: qsTr("区域截图、延时截图")
                         visible: root.matchesQuery(title, description)
-                        onClicked: root.navigateTo(3)
+                        onClicked: root.navigateTo(4)
                     }
                     ShortcutCard {
                         theme: root.theme
@@ -181,7 +181,7 @@ Item {
                         title: qsTr("待办")
                         description: qsTr("任务管理与工作计划")
                         visible: root.matchesQuery(title, description)
-                        onClicked: root.navigateTo(4)
+                        onClicked: root.navigateTo(5)
                     }
                 }
 
